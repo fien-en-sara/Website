@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poppetje Maken • Gezinshub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f4f7fb;
+            background-image: radial-gradient(#dce5f2 1.4px, transparent 1.4px);
+            background-size: 24px 24px;
+            color: #1e293b;
+        }
+
+        /* Subtiele zweef- en klikanimaties voor het poppetje en de kaarten */
+        @keyframes popIn {
+            0% { transform: scale(0.95); opacity: 0.7; }
+            70% { transform: scale(1.02); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .avatar-pop {
+            animation: popIn 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* Verberg standaard scrollbar bij horizontale categorie-tabs */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .option-card {
+            transition: transform 0.14s ease, box-shadow 0.14s ease, border-color 0.14s ease, background-color 0.14s ease;
+        }
+        .option-card:active {
+            transform: scale(0.96);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Bovenste navigatiebalk passend bij de Gezinshub -->
+    <header class="w-full max-w-6xl mx-auto px-4 pt-4 pb-2 flex items-center justify-between gap-3 flex-wrap">
+        <a href="../index.html" class="inline-flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-800 font-bold text-sm rounded-2xl border border-slate-200/90 shadow-sm transition active:scale-95">
+            <span>←</span>
+            <span>Terug naar Gezinshub</span>
+        </a>
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-pink-100 text-pink-700 font-extrabold text-xs uppercase tracking-wider">
+            <span>✨</span>
+            <span>Aankleed & Ontwerp Studio</span>
+        </div>
+    </header>
+
+    <!-- Titelblok -->
+    <section class="w-full max-w-6xl mx-auto px-4 pt-1 pb-4">
+        <h1 class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-slate-900 flex items-center gap-2.5">
+            <span>🧍‍♀️</span>
+            <span>Poppetje Maken</span>
+        </h1>
+        <p class="text-slate-500 text-sm sm:text-base mt-1 font-medium">
+            Kies een kapsel, leuke kleren, sieraden en vrolijke details om jouw eigen poppetje samen te stellen!
+        </p>
+    </section>
+
+    <!-- Hoofdgedeelte: Links (boven op mobiel) het poppetje, Rechts (onder op mobiel) de keuzecategorieën -->
+    <main class="w-full max-w-6xl mx-auto px-4 pb-12 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- LINKERKOLOM: Live SVG Poppetje + Achtergrond + Actieknoppen -->
+        <div class="lg:col-span-5 bg-white rounded-3xl p-4 sm:p-5 shadow-lg shadow-slate-200/70 border border-slate-200/80 lg:sticky lg:top-4">
+            
+            <!-- Achtergrondkiezer boven het podium -->
+            <div class="flex items-center justify-between gap-2 mb-3 flex-wrap">
+                <span class="text-xs font-extrabold uppercase tracking-wider text-slate-400">Achtergrond</span>
+                <div id="bg-selector" class="flex items-center gap-1.5 flex-wrap"></div>
+            </div>
+
+            <!-- Podium met het volledige SVG-poppetje -->
+            <div class="relative w-full aspect-[4/5] max-h-[470px] mx-auto rounded-2xl overflow-hidden border-2 border-slate-200/90 shadow-inner bg-sky-100 flex items-center justify-center">
+                <svg id="character-svg" viewBox="0 0 360 460" xmlns="http://www.w3.org/2000/svg" class="w-full h-full select-none">
+                    <defs>
+                        <!-- Regenboog verloop voor haar & kleding -->
+                        <linearGradient id="rainbowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#ff7eb3"/>
+                            <stop offset="25%" stop-color="#ffd166"/>
+                            <stop offset="50%" stop-color="#06d6a0"/>
+                            <stop offset="75%" stop-color="#4ea8de"/>
+                            <stop offset="100%" stop-color="#b5179e"/>
+                        </linearGradient>
+                        <!-- Sterrenhemel verloop -->
+                        <linearGradient id="nightSkyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#1e1b4b"/>
+                            <stop offset="60%" stop-color="#312e81"/>
+                            <stop offset="100%" stop-color="#4c1d95"/>
+                        </linearGradient>
+                        <!-- Hemelsblauw verloop -->
+                        <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#bae6fd"/>
+                            <stop offset="100%" stop-color="#f0f9ff"/>
+                        </linearGradient>
+                        <!-- Grasveld verloop -->
+                        <linearGradient id="meadowSkyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#bae6fd"/>
+                            <stop offset="72%" stop-color="#e0f2fe"/>
+                            <stop offset="72%" stop-color="#86efac"/>
+                            <stop offset="100%" stop-color="#4ade80"/>
+                        </linearGradient>
+                        <!-- Schaduw onder voeten -->
+                        <radialGradient id="floorShadow" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="rgba(15, 23, 42, 0.20)"/>
+                            <stop offset="100%" stop-color="rgba(15, 23, 42, 0)"/>
+                        </radialGradient>
+                    </defs>
+
+                    <!-- LAAG 1: Achtergrond -->
+                    <g id="layer-background"></g>
+
+                    <!-- Vloerschaduw -->
+                    <ellipse cx="180" cy="404" rx="74" ry="12" fill="url(#floorShadow)"/>
+
+                    <!-- LAAG 2: Achterkant haar (lang haar / staarten achter lichaam) -->
+                    <g id="layer-hair-back"></g>
+
+                    <!-- LAAG 3: Lichaam (nek, romp, armen, handen, benen) -->
+                    <g id="layer-body"></g>
+
+                    <!-- LAAG 4: Sokken & Schoenen -->
+                    <g id="layer-shoes"></g>
+
+                    <!-- LAAG 5: Broek / Rok (onderkleding) -->
+                    <g id="layer-bottoms"></g>
+
+                    <!-- LAAG 6: Shirt / Trui / Jurk (bovenkleding) -->
+                    <g id="layer-tops"></g>
+
+                    <!-- LAAG 7: Sieraden op lichaam (ketting & armband) -->
+                    <g id="layer-jewelry-body"></g>
+
+                    <!-- LAAG 8: Hoofd & Oren -->
+                    <g id="layer-head"></g>
+
+                    <!-- LAAG 9: Oorbellen -->
+                    <g id="layer-earrings"></g>
+
+                    <!-- LAAG 10: Gezicht (blosjes, sproetjes, ogen, wenkbrauwen, neus, mond) -->
+                    <g id="layer-face"></g>
+
+                    <!-- LAAG 11: Voorkant haar & Pony -->
+                    <g id="layer-hair-front"></g>
+
+                    <!-- LAAG 12: Brillen & Hoofddeksels -->
+                    <g id="layer-headwear"></g>
+
+                    <!-- LAAG 13: Extra accessoires (in de hand of huisdier ernaast) -->
+                    <g id="layer-extras"></g>
+
+                    <!-- LAAG 14: Naamkaartje onderaan in het podium -->
+                    <g id="layer-nametag"></g>
+                </svg>
+            </div>
+
+            <!-- Naam invoerveld -->
+            <div class="mt-3.5">
+                <label for="character-name" class="block text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-1">
+                    Naam van je poppetje
+                </label>
+                <input
+                    type="text"
+                    id="character-name"
+                    maxlength="24"
+                    placeholder="Bijv. Super Fien, Sara, Prinses..."
+                    class="w-full px-3.5 py-2.5 rounded-2xl border-2 border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 outline-none font-bold text-slate-800 text-sm sm:text-base transition"
+                >
+            </div>
+
+            <!-- Actieknoppen: Verras me, Opnieuw, Opslaan als plaatje -->
+            <div class="mt-3 grid grid-cols-2 gap-2.5">
+                <button type="button" id="btn-random" class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-2xl bg-amber-400 hover:bg-amber-500 text-slate-900 font-extrabold text-sm shadow-sm transition active:scale-95">
+                    <span>🎲</span>
+                    <span>Verras me!</span>
+                </button>
+                <button type="button" id="btn-reset" class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-sm transition active:scale-95">
+                    <span>🔄</span>
+                    <span>Opnieuw</span>
+                </button>
+            </div>
+
+            <button type="button" id="btn-download" class="mt-2.5 w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-sm sm:text-base shadow-md shadow-indigo-200 transition active:scale-95">
+                <span>📸</span>
+                <span>Opslaan als plaatje</span>
+            </button>
+
+            <!-- Melding bij opslaan -->
+            <div id="save-feedback" class="hidden mt-2.5 px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold text-center">
+                🎉 Gelukt! Jouw poppetje is gedownload als plaatje.
+            </div>
+        </div>
+
+        <!-- RECHTERKOLOM: Categorie-tabbladen & Keuze-opties -->
+        <div class="lg:col-span-7 bg-white rounded-3xl p-4 sm:p-6 shadow-lg shadow-slate-200/70 border border-slate-200/80">
+            
+            <!-- Navigatie-tabs voor de 6 categorieën -->
+            <div id="category-tabs" class="flex gap-2 overflow-x-auto no-scrollbar pb-3 mb-4 border-b border-slate-100"></div>
+
+            <!-- Dynamische inhoud voor het gekozen tabblad -->
+            <div id="tab-content" class="space-y-6"></div>
+
+        </div>
+    </main>
+
+    <script>
+        /**
+         * POPPETJE MAKEN - DATA & CONFIGURATIE
+         * Alle categorieën, kapsels, kledingstukken, sieraden, brillen, accessoires en kleurpaletten.
+         */
+
+        const BACKGROUNDS = [
+            { id: 'pink', label: 'Pastelroze', swatch: '#fbcfe8' },
+            { id: 'mint', label: 'Mintgroen', swatch: '#a7f3d0' },
+            { id: 'sky', label: 'Hemelsblauw', swatch: '#bae6fd' },
+            { id: 'meadow', label: 'Grasveld', swatch: '#4ade80' },
+            { id: 'stars', label: 'Sterrenhemel', swatch: '#312e81' }
+        ];
+
+        const SKIN_TONES = [
+            { id: 's1', name: 'Heel licht', color: '#fde7d6', shadow: '#f3cfb4' },
+            { id: 's2', name: 'Licht perzik', color: '#f8d3b8', shadow: '#e8b896' },
+            { id: 's3', name: 'Warm beige', color: '#e9b58d', shadow: '#d49a6e' },
+            { id: 's4', name: 'Olijf', color: '#d2976b', shadow: '#b87c50' },
+            { id: 's5', name: 'Karamel', color: '#a86b43', shadow: '#8c532e' },
+            { id: 's6', name: 'Donkerbruin', color: '#6b3e24', shadow: '#522c16' }
+        ];
+
+        const EYE_TYPES = [
+            { id: 'happy', label: 'Blij', icon: '😊' },
+            { id: 'big', label: 'Grote ogen', icon: '🥺' },
+            { id: 'lashes', label: 'Met wimpers', icon: '👁️' },
+            { id: 'wink', label: 'Knipoog', icon: '😉' },
+            { id: 'stars', label: 'Sterrenogen', icon: '🤩' }
+        ];
+
+        const EYE_COLORS = [
+            { id: 'brown', name: 'Bruin', color: '#5c3a21' },
+            { id: 'blue', name: 'Blauw', color: '#2563eb' },
+            { id: 'green', name: 'Groen', color: '#16a34a' },
+            { id: 'hazel', name: 'Hazelnoot', color: '#854d0e' },
+            { id: 'purple', name: 'Paars', color: '#7c3aed' }
+        ];
+
+        const MOUTH_TYPES = [
+            { id: 'smile', label: 'Glimlach', icon: '🙂' },
+            { id: 'bigsmile', label: 'Grote lach', icon: '😄' },
+            { id: 'surprised', label: 'Verbaasd', icon: '😮' },
+            { id: 'tongue', label: 'Tong uit', icon: '😛' },
+            { id: 'lipstick', label: 'Lippenstift', icon: '💋' }
+        ];
+
+        const CHEEK_TYPES = [
+            { id: 'none', label: 'Geen', icon: '✨' },
+            { id: 'blush', label: 'Blosjes', icon: '🌸' },
+            { id: 'freckles', label: 'Sproetjes', icon: '🧡' },
+            { id: 'both', label: 'Allebei!', icon: '🥰' }
+        ];
+
+        const HAIR_STYLES = [
+            { id: 'long_straight', label: 'Lang steil', icon: '👩' },
+            { id: 'curly', label: 'Krullen', icon: '👩‍🦱' },
+            { id: 'pigtails', label: 'Twee staartjes', icon: '👧' },
+            { id: 'space_buns', label: 'Knotjes', icon: '🎀' },
+            { id: 'ponytail', label: 'Paardenstaart', icon: '👱‍♀️' },
+            { id: 'short_cool', label: 'Kort stoer', icon: '🧒' },
+            { id: 'braids', label: 'Vlechtjes', icon: '🪢' },
+            { id: 'bangs_bob', label: 'Bob met pony', icon: '💇‍♀️' }
+        ];
+
+        const HAIR_COLORS = [
+            { id: 'blonde', name: 'Blond', color: '#facc15', dark: '#ca8a04' },
+            { id: 'brown', name: 'Bruin', color: '#6b3e26', dark: '#4a2918' },
+            { id: 'black', name: 'Zwart', color: '#1e293b', dark: '#0f172a' },
+            { id: 'red', name: 'Rood / Koper', color: '#ea580c', dark: '#9a3412' },
+            { id: 'pink', name: 'Pastelroze', color: '#f472b6', dark: '#db2777' },
+            { id: 'purple', name: 'Paars', color: '#a855f7', dark: '#7e22ce' },
+            { id: 'blue', name: 'Blauw', color: '#38bdf8', dark: '#0284c7' },
+            { id: 'rainbow', name: 'Regenboog', color: 'url(#rainbowGrad)', dark: '#9333ea', swatch: 'linear-gradient(135deg,#ff7eb3,#ffd166,#06d6a0,#4ea8de,#b5179e)' }
+        ];
+
+        const TOP_TYPES = [
+            { id: 'tshirt', label: 'T-shirt', icon: '👕' },
+            { id: 'hoodie', label: 'Hoodie met zak', icon: '🧥' },
+            { id: 'striped', label: 'Gestreept shirt', icon: '🦓' },
+            { id: 'hockey', label: 'Hockeyshirt', icon: '🏑' },
+            { id: 'glitter', label: 'Glittertop', icon: '✨' },
+            { id: 'overalls', label: 'Tuinbroek', icon: '👖' },
+            { id: 'dress', label: 'Zomerjurkje', icon: '👗' }
+        ];
+
+        const BOTTOM_TYPES = [
+            { id: 'jeans', label: 'Spijkerbroek', icon: '👖' },
+            { id: 'shorts', label: 'Korte broek', icon: '🩳' },
+            { id: 'skirt', label: 'Plooirokje', icon: '🩰' },
+            { id: 'legging', label: 'Legging', icon: '🧘‍♀️' },
+            { id: 'joggers', label: 'Joggingbroek', icon: '🏃‍♀️' }
+        ];
+
+        const SHOE_TYPES = [
+            { id: 'sneakers', label: 'Sneakers', icon: '👟' },
+            { id: 'boots', label: 'Laarsjes', icon: '👢' },
+            { id: 'sport', label: 'Sportschoenen', icon: '⚡' },
+            { id: 'sandals', label: 'Sandalen', icon: '🩴' },
+            { id: 'socks', label: 'Alleen sokken', icon: '🧦' }
+        ];
+
+        const CLOTHING_COLORS = [
+            { id: 'pink', name: 'Roze', color: '#f472b6', dark: '#db2777' },
+            { id: 'purple', name: 'Paars', color: '#a855f7', dark: '#7e22ce' },
+            { id: 'blue', name: 'Hemelsblauw', color: '#38bdf8', dark: '#0284c7' },
+            { id: 'denim', name: 'Spijkerblauw', color: '#3b82f6', dark: '#1d4ed8' },
+            { id: 'mint', name: 'Mintgroen', color: '#34d399', dark: '#059669' },
+            { id: 'yellow', name: 'Zonnig geel', color: '#facc15', dark: '#ca8a04' },
+            { id: 'orange', name: 'Oranje', color: '#fb923c', dark: '#ea580c' },
+            { id: 'red', name: 'Rood', color: '#f87171', dark: '#dc2626' },
+            { id: 'white', name: 'Wit', color: '#ffffff', dark: '#cbd5e1' },
+            { id: 'black', name: 'Zwart', color: '#334155', dark: '#0f172a' }
+        ];
+
+        const NECKLACE_TYPES = [
+            { id: 'none', label: 'Geen ketting', icon: '🚫' },
+            { id: 'gold', label: 'Gouden ketting', icon: '✨' },
+            { id: 'pearls', label: 'Parelketting', icon: '📿' },
+            { id: 'heart', label: 'Hartjes-hanger', icon: '💖' },
+            { id: 'choker', label: 'Choker', icon: '🎀' }
+        ];
+
+        const EARRING_TYPES = [
+            { id: 'none', label: 'Geen oorbellen', icon: '🚫' },
+            { id: 'hoops', label: 'Gouden ringetjes', icon: '⭕' },
+            { id: 'hearts', label: 'Hartjes', icon: '💕' },
+            { id: 'stars', label: 'Sterretjes', icon: '⭐' },
+            { id: 'pearls', label: 'Parels', icon: '⚪' }
+        ];
+
+        const WRIST_TYPES = [
+            { id: 'none', label: 'Geen armband', icon: '🚫' },
+            { id: 'bracelets', label: 'Kleurige armbandjes', icon: '🌈' },
+            { id: 'watch', label: 'Horloge', icon: '⌚' }
+        ];
+
+        const GLASSES_TYPES = [
+            { id: 'none', label: 'Geen bril', icon: '🚫' },
+            { id: 'round', label: 'Ronde bril', icon: '👓' },
+            { id: 'hearts', label: 'Hartjesbril', icon: '😍' },
+            { id: 'sunglasses', label: 'Zonnebril', icon: '🕶️' }
+        ];
+
+        const HEADWEAR_TYPES = [
+            { id: 'none', label: 'Geen', icon: '🚫' },
+            { id: 'crown', label: 'Kroontje', icon: '👑' },
+            { id: 'bow', label: 'Grote strik', icon: '🎀' },
+            { id: 'cap', label: 'Stoere pet', icon: '🧢' },
+            { id: 'catears', label: 'Kattenoren', icon: '🐱' },
+            { id: 'flowers', label: 'Bloemenkrans', icon: '🌺' }
+        ];
+
+        const EXTRA_TYPES = [
+            { id: 'none', label: 'Geen extra', icon: '🚫' },
+            { id: 'hockey', label: 'Hockeystick & bal', icon: '🏑' },
+            { id: 'heart', label: 'Lief hartje', icon: '💝' },
+            { id: 'bag', label: 'Schoudertasje', icon: '👜' },
+            { id: 'wand', label: 'Sterrenstaf', icon: '🪄' },
+            { id: 'cat', label: 'Schattig katje', icon: '🐱' },
+            { id: 'dog', label: 'Lief hondje', icon: '🐶' }
+        ];
+
+        const CATEGORIES = [
+            { id: 'face', label: 'Gezicht & Huid', icon: '😊' },
+            { id: 'hair', label: 'Haren', icon: '💇‍♀️' },
+            { id: 'clothes', label: 'Kleding', icon: '👗' },
+            { id: 'shoes', label: 'Schoenen', icon: '👟' },
+            { id: 'jewelry', label: 'Sieraden', icon: '💎' },
+            { id: 'details', label: 'Details & Extra', icon: '👑' }
+        ];
+
+        // Standaard start-status van het poppetje
+        const DEFAULT_STATE = {
+            name: '',
+            background: 'pink',
+            skin: 's2',
+            eyes: 'happy',
+            eyeColor: 'brown',
+            mouth: 'smile',
+            cheeks: 'blush',
+            hairStyle: 'long_straight',
+            hairColor: 'blonde',
+            top: 'tshirt',
+            topColor: 'pink',
+            bottom: 'jeans',
+            bottomColor: 'denim',
+            shoes: 'sneakers',
+            shoeColor: 'white',
+            necklace: 'heart',
+            earrings: 'stars',
+            wrist: 'bracelets',
+            glasses: 'none',
+            headwear: 'none',

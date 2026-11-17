@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Afteldagen</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<main>
+<a class="back" href="../index.html">← Gezinshub</a>
+<h2>Afteldagen 🎂</h2>
+<div class="card">
+<input class="field" id="a-name" type="text" placeholder="Waarvoor tel je af? (bijv. verjaardag Sara)" aria-label="Naam">
+<input class="field" id="a-date" type="date" aria-label="Datum">
+<label class="row" style="margin-bottom:8px"><input type="checkbox" id="a-rep" checked style="width:22px;height:22px"> Elk jaar herhalen (verjaardag)</label>
+<p id="a-warn" style="color:var(--coral);min-height:26px;margin:0 0 6px"></p>
+<button class="btn" id="a-add">Toevoegen</button>
+</div>
+<div id="a-list"></div>
+</main>
+<script>
+var $=function(s){return document.querySelector(s)},R=function(n){return Math.floor(Math.random()*n)};
+var KEY='afteldagen',list=[];
+try{list=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){list=[]}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(list))}catch(e){}}
+function diff(it){var t=new Date();t.setHours(0,0,0,0);var p=it.d.split('-'),d=new Date(+p[0],+p[1]-1,+p[2]);
+if(it.r){d.setFullYear(t.getFullYear());if(d<t)d.setFullYear(t.getFullYear()+1)}return Math.round((d-t)/864e5)}
+function draw(){var box=$('#a-list');box.innerHTML='';
+if(!list.length){box.innerHTML='<p>Nog niets toegevoegd. Vul hierboven een naam en datum in.</p>';return}
+list.map(function(it,i){return{it:it,i:i,d:diff(it)}}).sort(function(a,b){return(a.d<0?1e5-a.d:a.d)-(b.d<0?1e5-b.d:b.d)}).forEach(function(o){
+var c=document.createElement('div');c.className='card item';
+var n=document.createElement('div');n.className='n';n.textContent=o.d<0?'✔':o.d===0?'🎉':o.d;
+var t=document.createElement('div');t.className='t';var b=document.createElement('b');b.textContent=o.it.n;
+var s=document.createElement('span');s.textContent=o.d===0?'Vandaag is het zover!':o.d===1?'Nog 1 nachtje slapen':o.d>1?'Nog '+o.d+' nachtjes slapen':'Was '+(-o.d)+' dagen geleden';
+t.appendChild(b);t.appendChild(s);
+var x=document.createElement('button');x.className='del';x.textContent='🗑️';x.setAttribute('aria-label',o.it.n+' verwijderen');x.onclick=function(){list.splice(o.i,1);save();draw()};
+c.appendChild(n);c.appendChild(t);c.appendChild(x);box.appendChild(c)})}
+$('#a-add').onclick=function(){var n=$('#a-name').value.trim(),d=$('#a-date').value;
+if(!n||!d){$('#a-warn').textContent='Vul een naam en een datum in.';return}
+list.push({n:n,d:d,r:$('#a-rep').checked});save();$('#a-name').value='';$('#a-date').value='';$('#a-warn').textContent='';draw()};
+draw();
+</script>
+</body>
+</html>

@@ -1,141 +1,22 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gezinshub</title>
-  <style>
-    :root {
-      --bg: #0f172a;
-      --card-bg: #1e293b;
-      --text: #f8fafc;
-      --subtext: #94a3b8;
-      --accent: #38bdf8;
-    }
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-    body {
-      background-color: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2.5rem 1rem;
-    }
-    header {
-      text-align: center;
-      margin-bottom: 2.5rem;
-    }
-    h1 {
-      font-size: 2.2rem;
-      margin-bottom: 0.5rem;
-      letter-spacing: -0.025em;
-    }
-    p.subtitle {
-      color: var(--subtext);
-      font-size: 1rem;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1.25rem;
-      width: 100%;
-      max-width: 900px;
-    }
-    .card {
-      background-color: var(--card-bg);
-      border-radius: 1rem;
-      padding: 1.5rem;
-      text-decoration: none;
-      color: inherit;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      transition: transform 0.15s ease, border-color 0.15s ease;
-    }
-    .card:hover {
-      transform: translateY(-3px);
-      border-color: var(--accent);
-    }
-    .icon {
-      font-size: 2rem;
-      margin-bottom: 1rem;
-    }
-    .title {
-      font-size: 1.25rem;
-      font-weight: 600;
-      margin-bottom: 0.35rem;
-    }
-    .desc {
-      color: var(--subtext);
-      font-size: 0.9rem;
-      line-height: 1.4;
-    }
-    .tag {
-      margin-top: auto;
-      padding-top: 1rem;
-      font-size: 0.75rem;
-      color: var(--accent);
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gezinshub</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <header>
-    <h1>Gezinshub</h1>
-    <p class="subtitle">Kies een app om te starten</p>
-  </header>
-
-  <main class="grid">
-    <!-- Hockey Tactiekbord -->
-    <a href="./hockey/index.html" class="card">
-      <div class="icon">🏑</div>
-      <div class="title">Hockey Tactiekbord</div>
-      <div class="desc">Beweeg spelers over het veld en teken looplijnen en passes.</div>
-      <span class="tag">Sport</span>
-    </a>
-
-    <!-- Tafels Oefenen (Placeholder voor volgende app) -->
-    <a href="./tafels/index.html" class="card" style="opacity: 0.7;">
-      <div class="icon">✖️</div>
-      <div class="title">Tafels Oefenen</div>
-      <div class="desc">Oefen op tempo de tafels van 1 tot en met 12.</div>
-      <span class="tag">Oefenen maar!</span>
-    </a>
-
-    <!-- Dagenteller / Countdown -->
-    <a href="#" class="card" style="opacity: 0.7;">
-      <div class="icon">⏳</div>
-      <div class="title">Aftelteller</div>
-      <div class="desc">Hoeveel nachtjes slapen tot verjaardagen of vakanties?</div>
-      <span class="tag">Binnenkort</span>
-    </a>
-  
-    <!-- Spelletjes-->
-    <a href="./Spelletjes/Poppetje.maken.html" class="card" style="opacity: 0.7;">
-      <div class="icon">⏳</div>
-      <div class="title">spelletjes</div>
-      <div class="desc">Poppetje maken, etc, ...</div>
-      <span class="tag">Go!</span>
-    </a>
-    
-    <!-- Wie is de beurt? -->
-    <a href="#" class="card" style="opacity: 0.7;">
-      <div class="icon">🎡</div>
-      <div class="title">Rad van Fortuin</div>
-      <div class="desc">Draai aan het rad om te bepalen wie aan de beurt is.</div>
-      <span class="tag">Binnenkort</span>
-    </a>
-  </main>
-
+<main>
+<h1>Gezinshub</h1>
+<p>Kies een map om te starten.</p>
+<div class="grid">
+<a class="tile" href="Sport/index.html"><i>🏑</i><b>Sport</b><span>Hockeybord en strafslagen.</span></a>
+<a class="tile" href="Spelletjes/index.html"><i>🎮</i><b>Spelletjes</b><span>Poppetje maken.</span></a>
+<a class="tile" href="School/index.html"><i>🎒</i><b>School</b><span>Klok kijken en tafels.</span></a>
+<a class="tile" href="Afteldagen/index.html"><i>🎂</i><b>Afteldagen</b><span>Hoeveel nachtjes slapen?</span></a>
+</div>
+</main>
 </body>
 </html>

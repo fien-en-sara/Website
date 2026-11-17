@@ -1,411 +1,603 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Poppetje Maken • Gezinshub</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: #f4f7fb;
-            background-image: radial-gradient(#dce5f2 1.4px, transparent 1.4px);
-            background-size: 24px 24px;
-            color: #1e293b;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Poppetje Maken • Zomer Studio</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text: #f8fafc;
+      --subtext: #94a3b8;
+      --accent: #38bdf8;
+      --pink: #ec4899;
+      --green: #22c55e;
+      --yellow: #facc15;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+    }
+    header {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .back-btn {
+      color: var(--subtext);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.4rem 0.8rem;
+      background: var(--card-bg);
+      border-radius: 0.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .back-btn:hover {
+      color: var(--accent);
+    }
+    .badge {
+      background: #fdf0d5;
+      color: #c2410c;
+      font-weight: 800;
+      font-size: 0.8rem;
+      padding: 0.35rem 0.8rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
 
-        /* Subtiele zweef- en klikanimaties voor het poppetje en de kaarten */
-        @keyframes popIn {
-            0% { transform: scale(0.95); opacity: 0.7; }
-            70% { transform: scale(1.02); opacity: 1; }
-            100% { transform: scale(1); opacity: 1; }
-        }
+    /* Twee kolommen indeling */
+    .app-layout {
+      width: 100%;
+      max-width: 900px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+    @media (min-width: 768px) {
+      .app-layout {
+        grid-template-columns: 360px 1fr;
+        align-items: start;
+      }
+    }
 
-        .avatar-pop {
-            animation: popIn 0.24s cubic-bezier(0.22, 1, 0.36, 1);
-        }
+    /* Linkerkant: Poppetje canvas */
+    .preview-card {
+      background-color: var(--card-bg);
+      border-radius: 1.25rem;
+      padding: 1.25rem;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.85rem;
+    }
+    .svg-wrapper {
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      max-width: 320px;
+      border-radius: 1rem;
+      overflow: hidden;
+      border: 3px solid rgba(255, 255, 255, 0.15);
+      background: #7dd3fc;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    }
+    svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
 
-        /* Verberg standaard scrollbar bij horizontale categorie-tabs */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      width: 100%;
+    }
+    .action-btn {
+      padding: 0.7rem 0.5rem;
+      border-radius: 0.6rem;
+      border: none;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+    }
+    .btn-random { background: var(--yellow); color: #000; }
+    .btn-reset { background: #334155; color: white; }
 
-        .option-card {
-            transition: transform 0.14s ease, box-shadow 0.14s ease, border-color 0.14s ease, background-color 0.14s ease;
-        }
-        .option-card:active {
-            transform: scale(0.96);
-        }
-    </style>
+    /* Rechterkant: Categorieën en opties */
+    .controls-card {
+      background-color: var(--card-bg);
+      border-radius: 1.25rem;
+      padding: 1.25rem;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .tab-bar {
+      display: flex;
+      gap: 0.4rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+    }
+    .tab-bar::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      background: #334155;
+      color: var(--subtext);
+      border: none;
+      padding: 0.5rem 0.8rem;
+      border-radius: 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .tab-btn.active {
+      background: var(--accent);
+      color: #0f172a;
+    }
+
+    .section-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--subtext);
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .option-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .opt-btn {
+      background: #334155;
+      border: 2px solid transparent;
+      border-radius: 0.6rem;
+      color: white;
+      padding: 0.6rem 0.2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .opt-btn span.emoji { font-size: 1.4rem; }
+    .opt-btn.selected {
+      border-color: var(--accent);
+      background: #1e3a8a;
+    }
+
+    .color-row {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+    .color-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid #ffffff;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .color-dot.selected {
+      transform: scale(1.15);
+      border: 3px solid var(--accent);
+      box-shadow: 0 0 10px var(--accent);
+    }
+  </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body>
 
-    <!-- Bovenste navigatiebalk passend bij de Gezinshub -->
-    <header class="w-full max-w-6xl mx-auto px-4 pt-4 pb-2 flex items-center justify-between gap-3 flex-wrap">
-        <a href="../index.html" class="inline-flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-800 font-bold text-sm rounded-2xl border border-slate-200/90 shadow-sm transition active:scale-95">
-            <span>←</span>
-            <span>Terug naar Gezinshub</span>
-        </a>
-        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-pink-100 text-pink-700 font-extrabold text-xs uppercase tracking-wider">
-            <span>✨</span>
-            <span>Aankleed & Ontwerp Studio</span>
-        </div>
-    </header>
+  <header>
+    <a href="../index.html" class="back-btn">← Gezinshub</a>
+    <div class="badge">☀️ Zomer Editie</div>
+  </header>
 
-    <!-- Titelblok -->
-    <section class="w-full max-w-6xl mx-auto px-4 pt-1 pb-4">
-        <h1 class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-slate-900 flex items-center gap-2.5">
-            <span>🧍‍♀️</span>
-            <span>Poppetje Maken</span>
-        </h1>
-        <p class="text-slate-500 text-sm sm:text-base mt-1 font-medium">
-            Kies een kapsel, leuke kleren, sieraden en vrolijke details om jouw eigen poppetje samen te stellen!
-        </p>
-    </section>
+  <div class="app-layout">
+    
+    <!-- LINKER KANT: HET POPPETJE -->
+    <div class="preview-card">
+      <div class="svg-wrapper">
+        <svg id="avatar-svg" viewBox="0 0 360 450">
+          <defs>
+            <linearGradient id="beachSky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#38bdf8"/>
+              <stop offset="60%" stop-color="#bae6fd"/>
+              <stop offset="60%" stop-color="#fef08a"/>
+              <stop offset="100%" stop-color="#fde047"/>
+            </linearGradient>
+            <linearGradient id="poolSky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#bae6fd"/>
+              <stop offset="65%" stop-color="#0284c7"/>
+              <stop offset="100%" stop-color="#0369a1"/>
+            </linearGradient>
+            <radialGradient id="shadow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="rgba(0,0,0,0.25)"/>
+              <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
+            </radialGradient>
+          </defs>
 
-    <!-- Hoofdgedeelte: Links (boven op mobiel) het poppetje, Rechts (onder op mobiel) de keuzecategorieën -->
-    <main class="w-full max-w-6xl mx-auto px-4 pb-12 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <!-- 1. Achtergrond -->
+          <g id="layer-bg"></g>
+          <ellipse cx="180" cy="410" rx="70" ry="12" fill="url(#shadow)"/>
 
-        <!-- LINKERKOLOM: Live SVG Poppetje + Achtergrond + Actieknoppen -->
-        <div class="lg:col-span-5 bg-white rounded-3xl p-4 sm:p-5 shadow-lg shadow-slate-200/70 border border-slate-200/80 lg:sticky lg:top-4">
-            
-            <!-- Achtergrondkiezer boven het podium -->
-            <div class="flex items-center justify-between gap-2 mb-3 flex-wrap">
-                <span class="text-xs font-extrabold uppercase tracking-wider text-slate-400">Achtergrond</span>
-                <div id="bg-selector" class="flex items-center gap-1.5 flex-wrap"></div>
-            </div>
+          <!-- 2. Haar achterkant -->
+          <g id="layer-hair-back"></g>
 
-            <!-- Podium met het volledige SVG-poppetje -->
-            <div class="relative w-full aspect-[4/5] max-h-[470px] mx-auto rounded-2xl overflow-hidden border-2 border-slate-200/90 shadow-inner bg-sky-100 flex items-center justify-center">
-                <svg id="character-svg" viewBox="0 0 360 460" xmlns="http://www.w3.org/2000/svg" class="w-full h-full select-none">
-                    <defs>
-                        <!-- Regenboog verloop voor haar & kleding -->
-                        <linearGradient id="rainbowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="#ff7eb3"/>
-                            <stop offset="25%" stop-color="#ffd166"/>
-                            <stop offset="50%" stop-color="#06d6a0"/>
-                            <stop offset="75%" stop-color="#4ea8de"/>
-                            <stop offset="100%" stop-color="#b5179e"/>
-                        </linearGradient>
-                        <!-- Sterrenhemel verloop -->
-                        <linearGradient id="nightSkyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" stop-color="#1e1b4b"/>
-                            <stop offset="60%" stop-color="#312e81"/>
-                            <stop offset="100%" stop-color="#4c1d95"/>
-                        </linearGradient>
-                        <!-- Hemelsblauw verloop -->
-                        <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" stop-color="#bae6fd"/>
-                            <stop offset="100%" stop-color="#f0f9ff"/>
-                        </linearGradient>
-                        <!-- Grasveld verloop -->
-                        <linearGradient id="meadowSkyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" stop-color="#bae6fd"/>
-                            <stop offset="72%" stop-color="#e0f2fe"/>
-                            <stop offset="72%" stop-color="#86efac"/>
-                            <stop offset="100%" stop-color="#4ade80"/>
-                        </linearGradient>
-                        <!-- Schaduw onder voeten -->
-                        <radialGradient id="floorShadow" cx="50%" cy="50%" r="50%">
-                            <stop offset="0%" stop-color="rgba(15, 23, 42, 0.20)"/>
-                            <stop offset="100%" stop-color="rgba(15, 23, 42, 0)"/>
-                        </radialGradient>
-                    </defs>
+          <!-- 3. Lichaam -->
+          <g id="layer-body"></g>
 
-                    <!-- LAAG 1: Achtergrond -->
-                    <g id="layer-background"></g>
+          <!-- 4. Broek/Onderkleding -->
+          <g id="layer-bottom"></g>
 
-                    <!-- Vloerschaduw -->
-                    <ellipse cx="180" cy="404" rx="74" ry="12" fill="url(#floorShadow)"/>
+          <!-- 5. Top/Shirt/Badkleding -->
+          <g id="layer-top"></g>
 
-                    <!-- LAAG 2: Achterkant haar (lang haar / staarten achter lichaam) -->
-                    <g id="layer-hair-back"></g>
+          <!-- 6. Hoofd & Gezicht -->
+          <g id="layer-head"></g>
+          <g id="layer-face"></g>
 
-                    <!-- LAAG 3: Lichaam (nek, romp, armen, handen, benen) -->
-                    <g id="layer-body"></g>
+          <!-- 7. Haar voorkant -->
+          <g id="layer-hair-front"></g>
 
-                    <!-- LAAG 4: Sokken & Schoenen -->
-                    <g id="layer-shoes"></g>
+          <!-- 8. Details (Bril, Pet, Strandbal, etc) -->
+          <g id="layer-details"></g>
+        </svg>
+      </div>
 
-                    <!-- LAAG 5: Broek / Rok (onderkleding) -->
-                    <g id="layer-bottoms"></g>
+      <div class="btn-row">
+        <button class="action-btn btn-random" id="btn-rand">🎲 Verras me</button>
+        <button class="action-btn btn-reset" id="btn-rst">🔄 Reset</button>
+      </div>
+    </div>
 
-                    <!-- LAAG 6: Shirt / Trui / Jurk (bovenkleding) -->
-                    <g id="layer-tops"></g>
+    <!-- RECHTER KANT: OPTIES -->
+    <div class="controls-card">
+      <div class="tab-bar">
+        <button class="tab-btn active" data-tab="gezicht">Gezicht & Huid</button>
+        <button class="tab-btn" data-tab="haar">Haren</button>
+        <button class="tab-btn" data-tab="kleding">Zomerkleren</button>
+        <button class="tab-btn" data-tab="zomer">Strand & Fun</button>
+      </div>
 
-                    <!-- LAAG 7: Sieraden op lichaam (ketting & armband) -->
-                    <g id="layer-jewelry-body"></g>
+      <div id="tab-content"></div>
+    </div>
 
-                    <!-- LAAG 8: Hoofd & Oren -->
-                    <g id="layer-head"></g>
+  </div>
 
-                    <!-- LAAG 9: Oorbellen -->
-                    <g id="layer-earrings"></g>
+  <script>
+    // State[cite: 1]
+    const state = {
+      skin: '#f8d3b8',
+      hairStyle: 'staart',
+      hairColor: '#facc15',
+      eye: 'blij',
+      mouth: 'glimlach',
+      top: 'shirt',
+      topColor: '#ec4899',
+      bottom: 'shorts',
+      bottomColor: '#3b82f6',
+      bg: 'strand',
+      extra: 'ijsje',
+      glasses: 'zonnebril'
+    };
 
-                    <!-- LAAG 10: Gezicht (blosjes, sproetjes, ogen, wenkbrauwen, neus, mond) -->
-                    <g id="layer-face"></g>
+    let activeTab = 'gezicht';
 
-                    <!-- LAAG 11: Voorkant haar & Pony -->
-                    <g id="layer-hair-front"></g>
+    // Opties definities[cite: 1]
+    const SKINS = ['#fde7d6', '#f8d3b8', '#e9b58d', '#d2976b', '#a86b43', '#6b3e24'];
+    const HAIR_COLORS = ['#facc15', '#ea580c', '#6b3e26', '#1e293b', '#f472b6', '#38bdf8'];
+    const CLOTH_COLORS = ['#ec4899', '#38bdf8', '#facc15', '#22c55e', '#a855f7', '#ffffff', '#1e293b'];
 
-                    <!-- LAAG 12: Brillen & Hoofddeksels -->
-                    <g id="layer-headwear"></g>
+    function renderTabs() {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === activeTab);
+      });
 
-                    <!-- LAAG 13: Extra accessoires (in de hand of huisdier ernaast) -->
-                    <g id="layer-extras"></g>
+      const container = document.getElementById('tab-content');
+      container.innerHTML = '';
 
-                    <!-- LAAG 14: Naamkaartje onderaan in het podium -->
-                    <g id="layer-nametag"></g>
-                </svg>
-            </div>
+      if (activeTab === 'gezicht') {
+        container.innerHTML = `
+          <div class="section-title">Huidskleur</div>
+          <div class="color-row" id="skin-colors"></div>
 
-            <!-- Naam invoerveld -->
-            <div class="mt-3.5">
-                <label for="character-name" class="block text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-1">
-                    Naam van je poppetje
-                </label>
-                <input
-                    type="text"
-                    id="character-name"
-                    maxlength="24"
-                    placeholder="Bijv. Super Fien, Sara, Prinses..."
-                    class="w-full px-3.5 py-2.5 rounded-2xl border-2 border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 outline-none font-bold text-slate-800 text-sm sm:text-base transition"
-                >
-            </div>
+          <div class="section-title">Ogen</div>
+          <div class="option-grid">
+            <button class="opt-btn ${state.eye==='blij'?'selected':''}" onclick="setOpt('eye','blij')"><span class="emoji">😊</span>Blij</button>
+            <button class="opt-btn ${state.eye==='sterren'?'selected':''}" onclick="setOpt('eye','sterren')"><span class="emoji">🤩</span>Sterren</button>
+            <button class="opt-btn ${state.eye==='knipoog'?'selected':''}" onclick="setOpt('eye','knipoog')"><span class="emoji">😉</span>Knipoog</button>
+          </div>
 
-            <!-- Actieknoppen: Verras me, Opnieuw, Opslaan als plaatje -->
-            <div class="mt-3 grid grid-cols-2 gap-2.5">
-                <button type="button" id="btn-random" class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-2xl bg-amber-400 hover:bg-amber-500 text-slate-900 font-extrabold text-sm shadow-sm transition active:scale-95">
-                    <span>🎲</span>
-                    <span>Verras me!</span>
-                </button>
-                <button type="button" id="btn-reset" class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-sm transition active:scale-95">
-                    <span>🔄</span>
-                    <span>Opnieuw</span>
-                </button>
-            </div>
+          <div class="section-title">Mond</div>
+          <div class="option-grid">
+            <button class="opt-btn ${state.mouth==='glimlach'?'selected':''}" onclick="setOpt('mouth','glimlach')"><span class="emoji">🙂</span>Lach</button>
+            <button class="opt-btn ${state.mouth==='groot'?'selected':''}" onclick="setOpt('mouth','groot')"><span class="emoji">😄</span>Groot</button>
+            <button class="opt-btn ${state.mouth==='tong'?'selected':''}" onclick="setOpt('mouth','tong')"><span class="emoji">😛</span>Tong</button>
+          </div>
+        `;
+        renderColors('skin-colors', SKINS, state.skin, (c) => setOpt('skin', c));
+      }
 
-            <button type="button" id="btn-download" class="mt-2.5 w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-sm sm:text-base shadow-md shadow-indigo-200 transition active:scale-95">
-                <span>📸</span>
-                <span>Opslaan als plaatje</span>
-            </button>
+      if (activeTab === 'haar') {
+        container.innerHTML = `
+          <div class="section-title">Haarstijl</div>
+          <div class="option-grid">
+            <button class="opt-btn ${state.hairStyle==='staart'?'selected':''}" onclick="setOpt('hairStyle','staart')"><span class="emoji">👱‍♀️</span>Staart</button>
+            <button class="opt-btn ${state.hairStyle==='lang'?'selected':''}" onclick="setOpt('hairStyle','lang')"><span class="emoji">👩</span>Lang</button>
+            <button class="opt-btn ${state.hairStyle==='knotjes'?'selected':''}" onclick="setOpt('hairStyle','knotjes')"><span class="emoji">🎀</span>Knotjes</button>
+            <button class="opt-btn ${state.hairStyle==='kort'?'selected':''}" onclick="setOpt('hairStyle','kort')"><span class="emoji">🧒</span>Kort</button>
+          </div>
 
-            <!-- Melding bij opslaan -->
-            <div id="save-feedback" class="hidden mt-2.5 px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold text-center">
-                🎉 Gelukt! Jouw poppetje is gedownload als plaatje.
-            </div>
-        </div>
+          <div class="section-title">Haarkleur</div>
+          <div class="color-row" id="hair-colors"></div>
+        `;
+        renderColors('hair-colors', HAIR_COLORS, state.hairColor, (c) => setOpt('hairColor', c));
+      }
 
-        <!-- RECHTERKOLOM: Categorie-tabbladen & Keuze-opties -->
-        <div class="lg:col-span-7 bg-white rounded-3xl p-4 sm:p-6 shadow-lg shadow-slate-200/70 border border-slate-200/80">
-            
-            <!-- Navigatie-tabs voor de 6 categorieën -->
-            <div id="category-tabs" class="flex gap-2 overflow-x-auto no-scrollbar pb-3 mb-4 border-b border-slate-100"></div>
+      if (activeTab === 'kleding') {
+        container.innerHTML = `
+          <div class="section-title">Bovenkleding / Badpak</div>
+          <div class="option-grid">
+            <button class="opt-btn ${state.top==='shirt'?'selected':''}" onclick="setOpt('top','shirt')"><span class="emoji">👕</span>T-shirt</button>
+            <button class="opt-btn ${state.top==='topje'?'selected':''}" onclick="setOpt('top','topje')"><span class="emoji">🎽</span>Topje</button>
+            <button class="opt-btn ${state.top==='badpak'?'selected':''}" onclick="setOpt('top','badpak')"><span class="emoji">🩱</span>Badpak</button>
+          </div>
+          <div class="color-row" id="top-colors"></div>
 
-            <!-- Dynamische inhoud voor het gekozen tabblad -->
-            <div id="tab-content" class="space-y-6"></div>
+          <div class="section-title">Broekje / Rokje</div>
+          <div class="option-grid">
+            <button class="opt-btn ${state.bottom==='shorts'?'selected':''}" onclick="setOpt('bottom','shorts')"><span class="emoji">🩳</span>Short</button>
+            <button class="opt-btn ${state.bottom==='rokje'?'selected':''}" onclick="setOpt('bottom','rokje')"><span class="emoji">🩰</span>Rokje</button>
+            <button class="opt-btn ${state.bottom==='geen'?'selected':''}" onclick="setOpt('bottom','geen')"><span class="emoji">🚫</span>Geen</button>
+          </div>
+          <div class="color-row" id="bottom-colors"></div>
+        `;
+        renderColors('top-colors', CLOTH_COLORS, state.topColor, (c) => setOpt('topColor', c));
+        renderColors('bottom-colors', CLOTH_COLORS, state.bottomColor, (c) => setOpt('bottomColor', c));
+      }
 
-        </div>
-    </main>
+      if (activeTab === 'zomer') {
+        container.innerHTML = `
+          <div class="section-title">Strand & Zwem Extra's</div>
+          <div class="option-grid">
+            <button class="opt-btn ${state.extra==='ijsje'?'selected':''}" onclick="setOpt('extra','ijsje')"><span class="emoji">🍦</span>IJsje</button>
+            <button class="opt-btn ${state.extra==='strandbal'?'selected':''}" onclick="setOpt('extra','strandbal')"><span class="emoji">🏖️</span>Strandbal</button>
+            <button class="opt-btn ${state.extra==='geen'?'selected':''}" onclick="setOpt('extra','geen')"><span class="emoji">🚫</span>Geen</button>
+          </div>
 
-    <script>
-        /**
-         * POPPETJE MAKEN - DATA & CONFIGURATIE
-         * Alle categorieën, kapsels, kledingstukken, sieraden, brillen, accessoires en kleurpaletten.
-         */
+          <div class="section-title">Bril & Duikbril</div>
+          <div class="option-grid">
+            <button class="opt-btn ${state.glasses==='zonnebril'?'selected':''}" onclick="setOpt('glasses','zonnebril')"><span class="emoji">🕶️</span>Zonnebril</button>
+            <button class="opt-btn ${state.glasses==='duikbril'?'selected':''}" onclick="setOpt('glasses','duikbril')"><span class="emoji">🤿</span>Duikbril</button>
+            <button class="opt-btn ${state.glasses==='geen'?'selected':''}" onclick="setOpt('glasses','geen')"><span class="emoji">🚫</span>Geen</button>
+          </div>
 
-        const BACKGROUNDS = [
-            { id: 'pink', label: 'Pastelroze', swatch: '#fbcfe8' },
-            { id: 'mint', label: 'Mintgroen', swatch: '#a7f3d0' },
-            { id: 'sky', label: 'Hemelsblauw', swatch: '#bae6fd' },
-            { id: 'meadow', label: 'Grasveld', swatch: '#4ade80' },
-            { id: 'stars', label: 'Sterrenhemel', swatch: '#312e81' }
-        ];
+          <div class="section-title">Locatie</div>
+          <div class="option-grid">
+            <button class="opt-btn ${state.bg==='strand'?'selected':''}" onclick="setOpt('bg','strand')"><span class="emoji">🏖️</span>Strand</button>
+            <button class="opt-btn ${state.bg==='zwembad'?'selected':''}" onclick="setOpt('bg','zwembad')"><span class="emoji">🏊</span>Zwembad</button>
+          </div>
+        `;
+      }
+    }
 
-        const SKIN_TONES = [
-            { id: 's1', name: 'Heel licht', color: '#fde7d6', shadow: '#f3cfb4' },
-            { id: 's2', name: 'Licht perzik', color: '#f8d3b8', shadow: '#e8b896' },
-            { id: 's3', name: 'Warm beige', color: '#e9b58d', shadow: '#d49a6e' },
-            { id: 's4', name: 'Olijf', color: '#d2976b', shadow: '#b87c50' },
-            { id: 's5', name: 'Karamel', color: '#a86b43', shadow: '#8c532e' },
-            { id: 's6', name: 'Donkerbruin', color: '#6b3e24', shadow: '#522c16' }
-        ];
+    function renderColors(elId, colors, selected, onSelect) {
+      const el = document.getElementById(elId);
+      if (!el) return;
+      colors.forEach(col => {
+        const d = document.createElement('div');
+        d.className = `color-dot ${selected === col ? 'selected' : ''}`;
+        d.style.backgroundColor = col;
+        d.onclick = () => onSelect(col);
+        el.appendChild(d);
+      });
+    }
 
-        const EYE_TYPES = [
-            { id: 'happy', label: 'Blij', icon: '😊' },
-            { id: 'big', label: 'Grote ogen', icon: '🥺' },
-            { id: 'lashes', label: 'Met wimpers', icon: '👁️' },
-            { id: 'wink', label: 'Knipoog', icon: '😉' },
-            { id: 'stars', label: 'Sterrenogen', icon: '🤩' }
-        ];
+    function setOpt(key, val) {
+      state[key] = val;
+      renderTabs();
+      drawCharacter();
+    }
 
-        const EYE_COLORS = [
-            { id: 'brown', name: 'Bruin', color: '#5c3a21' },
-            { id: 'blue', name: 'Blauw', color: '#2563eb' },
-            { id: 'green', name: 'Groen', color: '#16a34a' },
-            { id: 'hazel', name: 'Hazelnoot', color: '#854d0e' },
-            { id: 'purple', name: 'Paars', color: '#7c3aed' }
-        ];
+    // SVG Tekenen[cite: 1]
+    function drawCharacter() {
+      // 1. BG[cite: 1]
+      document.getElementById('layer-bg').innerHTML = state.bg === 'strand'
+        ? `<rect width="360" height="450" fill="url(#beachSky)"/>
+           <circle cx="70" cy="70" r="30" fill="#facc15" opacity="0.9"/>`
+        : `<rect width="360" height="450" fill="url(#poolSky)"/>
+           <circle cx="280" cy="60" r="24" fill="#fef08a"/>`;
 
-        const MOUTH_TYPES = [
-            { id: 'smile', label: 'Glimlach', icon: '🙂' },
-            { id: 'bigsmile', label: 'Grote lach', icon: '😄' },
-            { id: 'surprised', label: 'Verbaasd', icon: '😮' },
-            { id: 'tongue', label: 'Tong uit', icon: '😛' },
-            { id: 'lipstick', label: 'Lippenstift', icon: '💋' }
-        ];
+      // 2. Haar achter[cite: 1]
+      let hBack = '';
+      if (state.hairStyle === 'lang') {
+        hBack = `<path d="M110 120 Q100 230 114 310 Q180 330 246 310 Q260 230 250 120 Z" fill="${state.hairColor}"/>`;
+      } else if (state.hairStyle === 'knotjes') {
+        hBack = `<circle cx="120" cy="80" r="26" fill="${state.hairColor}"/>
+                 <circle cx="240" cy="80" r="26" fill="${state.hairColor}"/>`;
+      } else if (state.hairStyle === 'staart') {
+        hBack = `<path d="M210 90 Q275 100 270 200 Q250 215 240 190 Q240 135 200 110 Z" fill="${state.hairColor}"/>`;
+      }
+      document.getElementById('layer-hair-back').innerHTML = hBack;
 
-        const CHEEK_TYPES = [
-            { id: 'none', label: 'Geen', icon: '✨' },
-            { id: 'blush', label: 'Blosjes', icon: '🌸' },
-            { id: 'freckles', label: 'Sproetjes', icon: '🧡' },
-            { id: 'both', label: 'Allebei!', icon: '🥰' }
-        ];
+      // 3. Lichaam[cite: 1]
+      document.getElementById('layer-body').innerHTML = `
+        <rect x="168" y="180" width="24" height="28" fill="${state.skin}" stroke="#334155" stroke-width="2"/>
+        <!-- Armen & Benen -->
+        <rect x="150" y="290" width="22" height="105" rx="10" fill="${state.skin}" stroke="#334155" stroke-width="2"/>
+        <rect x="188" y="290" width="22" height="105" rx="10" fill="${state.skin}" stroke="#334155" stroke-width="2"/>
+        <path d="M140 215 Q115 250 118 300" stroke="${state.skin}" stroke-width="18" stroke-linecap="round" fill="none"/>
+        <path d="M220 215 Q245 250 242 300" stroke="${state.skin}" stroke-width="18" stroke-linecap="round" fill="none"/>
+        <!-- Handen -->
+        <circle cx="118" cy="305" r="10" fill="${state.skin}"/>
+        <circle cx="242" cy="305" r="10" fill="${state.skin}"/>
+        <!-- Romp -->
+        <rect x="142" y="202" width="76" height="96" rx="10" fill="${state.skin}"/>
+      `;
 
-        const HAIR_STYLES = [
-            { id: 'long_straight', label: 'Lang steil', icon: '👩' },
-            { id: 'curly', label: 'Krullen', icon: '👩‍🦱' },
-            { id: 'pigtails', label: 'Twee staartjes', icon: '👧' },
-            { id: 'space_buns', label: 'Knotjes', icon: '🎀' },
-            { id: 'ponytail', label: 'Paardenstaart', icon: '👱‍♀️' },
-            { id: 'short_cool', label: 'Kort stoer', icon: '🧒' },
-            { id: 'braids', label: 'Vlechtjes', icon: '🪢' },
-            { id: 'bangs_bob', label: 'Bob met pony', icon: '💇‍♀️' }
-        ];
+      // 4. Broek / Onderkleding[cite: 1]
+      let bHtml = '';
+      if (state.bottom === 'shorts') {
+        bHtml = `<path d="M140 285 L220 285 L215 335 L184 335 L180 315 L176 335 L145 335 Z" fill="${state.bottomColor}" stroke="#334155" stroke-width="2"/>`;
+      } else if (state.bottom === 'rokje') {
+        bHtml = `<path d="M140 285 L220 285 L236 340 Q180 350 124 340 Z" fill="${state.bottomColor}" stroke="#334155" stroke-width="2"/>`;
+      }
+      document.getElementById('layer-bottom').innerHTML = bHtml;
 
-        const HAIR_COLORS = [
-            { id: 'blonde', name: 'Blond', color: '#facc15', dark: '#ca8a04' },
-            { id: 'brown', name: 'Bruin', color: '#6b3e26', dark: '#4a2918' },
-            { id: 'black', name: 'Zwart', color: '#1e293b', dark: '#0f172a' },
-            { id: 'red', name: 'Rood / Koper', color: '#ea580c', dark: '#9a3412' },
-            { id: 'pink', name: 'Pastelroze', color: '#f472b6', dark: '#db2777' },
-            { id: 'purple', name: 'Paars', color: '#a855f7', dark: '#7e22ce' },
-            { id: 'blue', name: 'Blauw', color: '#38bdf8', dark: '#0284c7' },
-            { id: 'rainbow', name: 'Regenboog', color: 'url(#rainbowGrad)', dark: '#9333ea', swatch: 'linear-gradient(135deg,#ff7eb3,#ffd166,#06d6a0,#4ea8de,#b5179e)' }
-        ];
+      // 5. Tops / Bovenkleding[cite: 1]
+      let tHtml = '';
+      if (state.top === 'shirt') {
+        tHtml = `<path d="M142 204 L218 204 L238 234 L218 244 L218 290 L142 290 L142 244 L122 234 Z" fill="${state.topColor}" stroke="#334155" stroke-width="2"/>`;
+      } else if (state.top === 'topje') {
+        tHtml = `<rect x="146" y="215" width="68" height="75" rx="6" fill="${state.topColor}" stroke="#334155" stroke-width="2"/>`;
+      } else if (state.top === 'badpak') {
+        tHtml = `<path d="M146 215 L214 215 L214 315 L185 315 L180 300 L175 315 L146 315 Z" fill="${state.topColor}" stroke="#334155" stroke-width="2"/>`;
+      }
+      document.getElementById('layer-top').innerHTML = tHtml;
 
-        const TOP_TYPES = [
-            { id: 'tshirt', label: 'T-shirt', icon: '👕' },
-            { id: 'hoodie', label: 'Hoodie met zak', icon: '🧥' },
-            { id: 'striped', label: 'Gestreept shirt', icon: '🦓' },
-            { id: 'hockey', label: 'Hockeyshirt', icon: '🏑' },
-            { id: 'glitter', label: 'Glittertop', icon: '✨' },
-            { id: 'overalls', label: 'Tuinbroek', icon: '👖' },
-            { id: 'dress', label: 'Zomerjurkje', icon: '👗' }
-        ];
+      // 6. Hoofd & Gezicht[cite: 1]
+      document.getElementById('layer-head').innerHTML = `
+        <rect x="125" y="58" width="110" height="125" rx="55" fill="${state.skin}" stroke="#334155" stroke-width="2"/>
+        <circle cx="123" cy="125" r="12" fill="${state.skin}"/>
+        <circle cx="237" cy="125" r="12" fill="${state.skin}"/>
+      `;
 
-        const BOTTOM_TYPES = [
-            { id: 'jeans', label: 'Spijkerbroek', icon: '👖' },
-            { id: 'shorts', label: 'Korte broek', icon: '🩳' },
-            { id: 'skirt', label: 'Plooirokje', icon: '🩰' },
-            { id: 'legging', label: 'Legging', icon: '🧘‍♀️' },
-            { id: 'joggers', label: 'Joggingbroek', icon: '🏃‍♀️' }
-        ];
+      let fHtml = '';
+      // Ogen[cite: 1]
+      if (state.eye === 'blij') {
+        fHtml += `<circle cx="156" cy="118" r="6" fill="#1e293b"/><circle cx="204" cy="118" r="6" fill="#1e293b"/>`;
+      } else if (state.eye === 'sterren') {
+        fHtml += `<text x="148" y="125" font-size="16">⭐</text><text x="196" y="125" font-size="16">⭐</text>`;
+      } else if (state.eye === 'knipoog') {
+        fHtml += `<circle cx="156" cy="118" r="6" fill="#1e293b"/><path d="M196 118 Q204 112 212 118" stroke="#1e293b" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+      }
 
-        const SHOE_TYPES = [
-            { id: 'sneakers', label: 'Sneakers', icon: '👟' },
-            { id: 'boots', label: 'Laarsjes', icon: '👢' },
-            { id: 'sport', label: 'Sportschoenen', icon: '⚡' },
-            { id: 'sandals', label: 'Sandalen', icon: '🩴' },
-            { id: 'socks', label: 'Alleen sokken', icon: '🧦' }
-        ];
+      // Mond[cite: 1]
+      if (state.mouth === 'glimlach') {
+        fHtml += `<path d="M168 145 Q180 156 192 145" stroke="#be123c" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+      } else if (state.mouth === 'groot') {
+        fHtml += `<path d="M166 144 Q180 165 194 144 Z" fill="#be123c"/>`;
+      } else if (state.mouth === 'tong') {
+        fHtml += `<path d="M168 145 Q180 156 192 145" stroke="#be123c" stroke-width="3" fill="none"/><circle cx="180" cy="154" r="5" fill="#fb7185"/>`;
+      }
+      document.getElementById('layer-face').innerHTML = fHtml;
 
-        const CLOTHING_COLORS = [
-            { id: 'pink', name: 'Roze', color: '#f472b6', dark: '#db2777' },
-            { id: 'purple', name: 'Paars', color: '#a855f7', dark: '#7e22ce' },
-            { id: 'blue', name: 'Hemelsblauw', color: '#38bdf8', dark: '#0284c7' },
-            { id: 'denim', name: 'Spijkerblauw', color: '#3b82f6', dark: '#1d4ed8' },
-            { id: 'mint', name: 'Mintgroen', color: '#34d399', dark: '#059669' },
-            { id: 'yellow', name: 'Zonnig geel', color: '#facc15', dark: '#ca8a04' },
-            { id: 'orange', name: 'Oranje', color: '#fb923c', dark: '#ea580c' },
-            { id: 'red', name: 'Rood', color: '#f87171', dark: '#dc2626' },
-            { id: 'white', name: 'Wit', color: '#ffffff', dark: '#cbd5e1' },
-            { id: 'black', name: 'Zwart', color: '#334155', dark: '#0f172a' }
-        ];
+      // 7. Haar voorkant[cite: 1]
+      document.getElementById('layer-hair-front').innerHTML = `
+        <path d="M122 105 Q120 50 180 50 Q240 50 238 105 Q230 70 190 70 Q160 80 122 105 Z" fill="${state.hairColor}"/>
+      `;
 
-        const NECKLACE_TYPES = [
-            { id: 'none', label: 'Geen ketting', icon: '🚫' },
-            { id: 'gold', label: 'Gouden ketting', icon: '✨' },
-            { id: 'pearls', label: 'Parelketting', icon: '📿' },
-            { id: 'heart', label: 'Hartjes-hanger', icon: '💖' },
-            { id: 'choker', label: 'Choker', icon: '🎀' }
-        ];
+      // 8. Details (Bril, IJsje, Strandbal)[cite: 1]
+      let dHtml = '';
+      if (state.glasses === 'zonnebril') {
+        dHtml += `
+          <g fill="#0f172a">
+            <rect x="140" y="108" width="32" height="18" rx="5"/>
+            <rect x="188" y="108" width="32" height="18" rx="5"/>
+            <line x1="172" y1="114" x2="188" y2="114" stroke="#0f172a" stroke-width="3"/>
+          </g>
+        `;
+      } else if (state.glasses === 'duikbril') {
+        dHtml += `
+          <g fill="rgba(56,189,248,0.4)" stroke="#0284c7" stroke-width="3">
+            <rect x="136" y="105" width="88" height="26" rx="10"/>
+            <path d="M136 118 L120 118 M224 118 L240 118" stroke-width="4"/>
+          </g>
+        `;
+      }
 
-        const EARRING_TYPES = [
-            { id: 'none', label: 'Geen oorbellen', icon: '🚫' },
-            { id: 'hoops', label: 'Gouden ringetjes', icon: '⭕' },
-            { id: 'hearts', label: 'Hartjes', icon: '💕' },
-            { id: 'stars', label: 'Sterretjes', icon: '⭐' },
-            { id: 'pearls', label: 'Parels', icon: '⚪' }
-        ];
+      if (state.extra === 'ijsje') {
+        dHtml += `
+          <!-- IJsje in de rechterhand -->
+          <g transform="translate(235, 260)">
+            <polygon points="10,40 2,18 18,18" fill="#d97706"/>
+            <circle cx="10" cy="14" r="10" fill="#f43f5e"/>
+            <circle cx="10" cy="4" r="3" fill="#be123c"/>
+          </g>
+        `;
+      } else if (state.extra === 'strandbal') {
+        dHtml += `
+          <!-- Strandbal naast de voeten -->
+          <g transform="translate(70, 340)">
+            <circle cx="25" cy="25" r="25" fill="#facc15" stroke="#334155" stroke-width="2"/>
+            <path d="M25 0 Q40 25 25 50 Q10 25 25 0" fill="#ec4899"/>
+            <circle cx="25" cy="25" r="5" fill="#ffffff"/>
+          </g>
+        `;
+      }
+      document.getElementById('layer-details').innerHTML = dHtml;
+    }
 
-        const WRIST_TYPES = [
-            { id: 'none', label: 'Geen armband', icon: '🚫' },
-            { id: 'bracelets', label: 'Kleurige armbandjes', icon: '🌈' },
-            { id: 'watch', label: 'Horloge', icon: '⌚' }
-        ];
+    // Events[cite: 1]
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeTab = btn.dataset.tab;
+        renderTabs();
+      });
+    });
 
-        const GLASSES_TYPES = [
-            { id: 'none', label: 'Geen bril', icon: '🚫' },
-            { id: 'round', label: 'Ronde bril', icon: '👓' },
-            { id: 'hearts', label: 'Hartjesbril', icon: '😍' },
-            { id: 'sunglasses', label: 'Zonnebril', icon: '🕶️' }
-        ];
+    document.getElementById('btn-rand').addEventListener('click', () => {
+      state.skin = SKINS[Math.floor(Math.random() * SKINS.length)];
+      state.hairColor = HAIR_COLORS[Math.floor(Math.random() * HAIR_COLORS.length)];
+      state.topColor = CLOTH_COLORS[Math.floor(Math.random() * CLOTH_COLORS.length)];
+      state.bottomColor = CLOTH_COLORS[Math.floor(Math.random() * CLOTH_COLORS.length)];
+      state.hairStyle = ['staart', 'lang', 'knotjes', 'kort'][Math.floor(Math.random() * 4)];
+      state.extra = ['ijsje', 'strandbal', 'geen'][Math.floor(Math.random() * 3)];
+      state.glasses = ['zonnebril', 'duikbril', 'geen'][Math.floor(Math.random() * 3)];
+      renderTabs();
+      drawCharacter();
+    });
 
-        const HEADWEAR_TYPES = [
-            { id: 'none', label: 'Geen', icon: '🚫' },
-            { id: 'crown', label: 'Kroontje', icon: '👑' },
-            { id: 'bow', label: 'Grote strik', icon: '🎀' },
-            { id: 'cap', label: 'Stoere pet', icon: '🧢' },
-            { id: 'catears', label: 'Kattenoren', icon: '🐱' },
-            { id: 'flowers', label: 'Bloemenkrans', icon: '🌺' }
-        ];
+    document.getElementById('btn-rst').addEventListener('click', () => {
+      state.skin = '#f8d3b8';
+      state.hairStyle = 'staart';
+      state.hairColor = '#facc15';
+      state.top = 'shirt';
+      state.topColor = '#ec4899';
+      state.bottom = 'shorts';
+      state.bottomColor = '#3b82f6';
+      state.extra = 'ijsje';
+      state.glasses = 'zonnebril';
+      renderTabs();
+      drawCharacter();
+    });
 
-        const EXTRA_TYPES = [
-            { id: 'none', label: 'Geen extra', icon: '🚫' },
-            { id: 'hockey', label: 'Hockeystick & bal', icon: '🏑' },
-            { id: 'heart', label: 'Lief hartje', icon: '💝' },
-            { id: 'bag', label: 'Schoudertasje', icon: '👜' },
-            { id: 'wand', label: 'Sterrenstaf', icon: '🪄' },
-            { id: 'cat', label: 'Schattig katje', icon: '🐱' },
-            { id: 'dog', label: 'Lief hondje', icon: '🐶' }
-        ];
-
-        const CATEGORIES = [
-            { id: 'face', label: 'Gezicht & Huid', icon: '😊' },
-            { id: 'hair', label: 'Haren', icon: '💇‍♀️' },
-            { id: 'clothes', label: 'Kleding', icon: '👗' },
-            { id: 'shoes', label: 'Schoenen', icon: '👟' },
-            { id: 'jewelry', label: 'Sieraden', icon: '💎' },
-            { id: 'details', label: 'Details & Extra', icon: '👑' }
-        ];
-
-        // Standaard start-status van het poppetje
-        const DEFAULT_STATE = {
-            name: '',
-            background: 'pink',
-            skin: 's2',
-            eyes: 'happy',
-            eyeColor: 'brown',
-            mouth: 'smile',
-            cheeks: 'blush',
-            hairStyle: 'long_straight',
-            hairColor: 'blonde',
-            top: 'tshirt',
-            topColor: 'pink',
-            bottom: 'jeans',
-            bottomColor: 'denim',
-            shoes: 'sneakers',
-            shoeColor: 'white',
-            necklace: 'heart',
-            earrings: 'stars',
-            wrist: 'bracelets',
-            glasses: 'none',
-            headwear: 'none',
+    // Start
+    renderTabs();
+    drawCharacter();
+  </script>
+</body>
+</html>

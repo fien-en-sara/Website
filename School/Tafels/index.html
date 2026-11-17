@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tafels oefenen</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<main>
+
+<a class="back" href="../index.html">← School</a>
+<h2>Tafels oefenen</h2>
+<div id="t-setup" class="card">
+<p>Kies de tafels die je wilt oefenen:</p>
+<div class="row">
+<button class="chip" data-p="1-10">1 t/m 10</button>
+<button class="chip" data-p="1-12">1 t/m 12</button>
+<button class="chip" data-p="11-20">Lastig: 11 t/m 20</button>
+</div>
+<div class="chips" id="t-chips"></div>
+<label class="row"><input type="checkbox" id="t-div" style="width:22px;height:22px"> Ook deelsommen (bijv. 42 ÷ 7)</label>
+<p id="t-warn" style="color:var(--coral);min-height:26px;margin:8px 0"></p>
+<button class="btn" id="t-go">Start met oefenen 🚀</button>
+</div>
+<div id="t-quiz" class="card" hidden>
+<div class="bar"><div id="t-bar"></div></div>
+<div class="sum" id="t-q"></div>
+<div class="ans" id="t-a" aria-live="polite"></div>
+<div class="pad" id="t-pad"></div>
+</div>
+<div id="t-end" class="card" hidden>
+<h2>Goed gedaan! 🎉</h2>
+<div class="big" id="t-score"></div>
+<p id="t-msg" style="text-align:center"></p>
+<div class="row" style="justify-content:center"><button class="btn" id="t-again">Nog een keer 🔄</button><button class="btn alt" id="t-new">Andere tafels</button></div>
+</div>
+
+</main>
+<script>
+var $=function(s){return document.querySelector(s)},R=function(n){return Math.floor(Math.random()*n)};
+var sel={};for(var i=2;i<=10;i++)sel[i]=1;
+var chipBox=$('#t-chips');
+for(var t=1;t<=20;t++){var b=document.createElement('button');b.className='chip';b.textContent=t;b.dataset.t=t;chipBox.appendChild(b)}
+function drawChips(){chipBox.querySelectorAll('.chip').forEach(function(c){c.setAttribute('aria-pressed',sel[c.dataset.t]?'true':'false')})}
+chipBox.onclick=function(e){var c=e.target.closest('.chip');if(!c)return;var t=c.dataset.t;if(sel[t])delete sel[t];else sel[t]=1;$('#t-warn').textContent='';drawChips()};
+document.querySelectorAll('[data-p]').forEach(function(b){b.onclick=function(){var p=b.dataset.p.split('-');sel={};for(var t=+p[0];t<=+p[1];t++)sel[t]=1;drawChips()}});
+drawChips();
+var Q,qi,score,buf='',lock=false;
+function show(id){['t-setup','t-quiz','t-end'].forEach(function(x){$('#'+x).hidden=x!==id})}
+function build(){var arr=Object.keys(sel).map(Number);Q=[];for(var i=0;i<10;i++){var t=arr[R(arr.length)],n=1+R(12);Q.push($('#t-div').checked&&Math.random()<.4?{q:(t*n)+' ÷ '+t,a:n}:{q:t+' × '+n,a:t*n})}qi=0;score=0;ask()}
+function ask(){buf='';lock=false;$('#t-q').textContent=Q[qi].q+' = ?';$('#t-a').textContent='';$('#t-a').className='ans';$('#t-bar').style.width=(qi*10)+'%'}
+$('#t-go').onclick=function(){if(!Object.keys(sel).length){$('#t-warn').textContent='Kies minstens één tafel.';return}show('t-quiz');build()};
+var pad=$('#t-pad');
+['1','2','3','4','5','6','7','8','9','⌫','0','OK'].forEach(function(k){var b=document.createElement('button');b.textContent=k;b.dataset.k=k;pad.appendChild(b)});
+pad.onclick=function(e){var k=e.target.dataset.k;if(!k||lock)return;var a=$('#t-a');
+if(k==='⌫')buf=buf.slice(0,-1);else if(k==='OK'){if(!buf)return;lock=true;var ok=+buf===Q[qi].a;if(ok)score++;a.className='ans '+(ok?'ok':'bad');a.textContent=ok?buf+' ✓':buf+' ✗ → '+Q[qi].a;setTimeout(function(){qi++;if(qi>=10)finish();else ask()},ok?600:1500);return}
+else if(buf.length<3)buf+=k;a.textContent=buf};
+function finish(){show('t-end');$('#t-score').textContent=score+' / 10';$('#t-msg').textContent=score===10?'Perfect! Geen foutje.':score>=7?'Knap gerekend!':'Blijf oefenen, het wordt steeds beter.'}
+$('#t-again').onclick=function(){show('t-quiz');build()};
+$('#t-new').onclick=function(){show('t-setup')};
+</script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+:root{--bg:#eaf6ff;--ink:#1d2b45;--card:#fff;--line:#c9dcef;--coral:#ff6b57;--sun:#ffc94a;--mint:#2fb98f;--vio:#6f62f5;--ok:#d9f6ea;--bad:#ffe0dc;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121a2b;--ink:#eef3fb;--card:#1c2740;--line:#33415f;--ok:#17483a;--bad:#5a2a2a}}
+:root[data-theme="dark"]{--bg:#121a2b;--ink:#eef3fb;--card:#1c2740;--line:#33415f;--ok:#17483a;--bad:#5a2a2a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:500 18px/1.4 "Baloo 2",system-ui,sans-serif}
+main{max-width:640px;margin:0 auto;padding:16px}
+h1{font-size:44px;line-height:1;margin:8px 0 4px;font-weight:800}
+h2{font-size:28px;margin:4px 0 12px;font-weight:800}
+p{margin:0 0 12px}
+[hidden]{display:none!important}
+.back{display:inline-block;margin-bottom:8px;color:var(--vio);font-weight:700;text-decoration:none}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+.tile{display:block;padding:18px 14px;border-radius:26px;background:var(--card);border:3px solid var(--ink);color:inherit;text-decoration:none;box-shadow:0 5px 0 var(--ink)}
+.tile:active{transform:translateY(4px);box-shadow:0 1px 0 var(--ink)}
+.tile b{display:block;font-size:22px}.tile span{font-size:15px;opacity:.8}.tile i{font-style:normal;font-size:42px;display:block}
+.card{background:var(--card);border:2px solid var(--line);border-radius:22px;padding:16px;margin-bottom:14px}
+button{font:inherit;color:inherit;cursor:pointer}
+.btn{background:var(--coral);color:#fff;border:0;border-radius:18px;padding:12px 20px;font-weight:800;font-size:20px;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+.btn:active{transform:translateY(3px);box-shadow:none}
+.btn.alt{background:var(--vio)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 12px}
+.chip{min-width:46px;min-height:44px;padding:4px 12px;border-radius:14px;border:2px solid var(--line);background:var(--card)}
+.chip[aria-pressed=true]{background:var(--sun);border-color:var(--ink);color:#1d2b45;font-weight:800}
+:focus-visible{outline:3px solid var(--vio);outline-offset:2px}
+.sum{font-size:56px;font-weight:800;text-align:center;margin:6px 0}
+.ans{font-size:44px;font-weight:800;text-align:center;min-height:68px;border-radius:18px;border:3px dashed var(--line);padding:2px;margin-bottom:12px}
+.ans.ok{background:var(--ok);border-style:solid;border-color:var(--mint)}.ans.bad{background:var(--bad);border-style:solid;border-color:var(--coral)}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pad button{min-height:62px;font-size:28px;font-weight:800;border-radius:16px;border:2px solid var(--line);background:var(--card)}
+.bar{height:12px;border-radius:8px;background:var(--line);overflow:hidden;margin-bottom:12px}.bar div{height:100%;background:var(--mint);width:0;transition:width .3s}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.sw{width:42px;height:42px;border-radius:50%;border:3px solid var(--line);padding:0}
+.sw[aria-pressed=true]{border-color:var(--ink);box-shadow:0 0 0 3px var(--sun)}
+#poppet{width:100%;max-width:260px;display:block;margin:0 auto;background:linear-gradient(#bfe6ff,#e8f7ff);border-radius:26px;border:3px solid var(--ink)}
+.cat{margin:10px 0 2px;font-weight:800}
+.big{font-size:40px;font-weight:800;text-align:center}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choices button{min-height:60px;font-size:28px;font-weight:800;border-radius:16px;border:2px solid var(--line);background:var(--card)}
+svg text{font-family:inherit;font-weight:800}
+
+.goal{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;background:#3aa56b;border:4px solid #fff;border-radius:18px;padding:10px;margin:12px 0}
+.zone{min-height:120px;font-size:46px;border-radius:14px;border:3px dashed #fff;background:rgba(255,255,255,.18);color:#fff;font-weight:800}
+.zone small{font-size:17px;display:block}
+.field{font:inherit;padding:10px 12px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink);width:100%;margin-bottom:8px}
+.item{display:flex;align-items:center;gap:14px}
+.item .n{font-size:42px;font-weight:800;min-width:76px;text-align:center;color:var(--coral)}
+.item .t{flex:1}.item .t b{display:block}
+.del{background:none;border:0;font-size:22px;padding:8px}

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Poppetje maken</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<main>
+
+<a class="back" href="../index.html">← Spelletjes</a>
+<h2>Poppetje maken</h2>
+<svg id="poppet" viewBox="0 0 200 300" role="img" aria-label="Jouw poppetje"></svg>
+<div class="row" style="justify-content:center;margin:12px 0"><button class="btn" id="p-rand">🎲 Verras me</button></div>
+<div class="card" id="p-ctl"></div>
+
+</main>
+<script>
+var $=function(s){return document.querySelector(s)},R=function(n){return Math.floor(Math.random()*n)};
+var skins=['#ffe0c7','#f7c59f','#d9a066','#a86b3c','#6b4226'],hairs=['#2b1d14','#7a4a22','#d9a441','#e8553d','#8a8f99','#7a5cf0'],clothes=['#ff6b57','#ffc94a','#2fb98f','#4aa3ff','#6f62f5','#f58ac4','#394867'];
+var cats=[
+{k:'skin',n:'Huid',o:skins,c:1},
+{k:'hair',n:'Haarstijl',o:['kort','lang','krullen','staart','stekels','kaal']},
+{k:'hc',n:'Haarkleur',o:hairs,c:1},
+{k:'eyes',n:'Ogen',o:['rond','blij','groot']},
+{k:'mouth',n:'Mond',o:['lach','open','rustig']},
+{k:'shirt',n:'Shirt',o:clothes,c:1},
+{k:'pants',n:'Broek',o:clothes,c:1},
+{k:'acc',n:'Extra',o:['geen','bril','pet','kroon']}];
+var P={skin:skins[1],hair:'kort',hc:hairs[1],eyes:'rond',mouth:'lach',shirt:clothes[0],pants:clothes[6],acc:'geen'};
+function pop(){var s=P.skin,h=P.hc,back='',front='';
+if(P.hair==='lang')back='<rect x="54" y="50" width="92" height="105" rx="40" fill="'+h+'"/>';
+if(P.hair==='staart')back='<ellipse cx="150" cy="100" rx="13" ry="30" transform="rotate(-20 150 100)" fill="'+h+'"/>';
+if(P.hair==='krullen')[[58,60],[78,42],[100,36],[122,42],[142,60],[52,84],[148,84]].forEach(function(c){back+='<circle cx="'+c[0]+'" cy="'+c[1]+'" r="18" fill="'+h+'"/>'});
+if(P.hair==='kort'||P.hair==='lang'||P.hair==='staart')front='<path d="M57 80Q54 34 100 34Q146 34 143 80Q124 56 100 60Q76 56 57 80Z" fill="'+h+'"/>';
+if(P.hair==='stekels')front='<path d="M58 70L62 36L78 52L88 26L100 48L112 26L122 52L138 36L142 70Q100 50 58 70Z" fill="'+h+'"/>';
+var eyes=P.eyes==='rond'?'<circle cx="84" cy="82" r="5.5" fill="#1d2b45"/><circle cx="116" cy="82" r="5.5" fill="#1d2b45"/>':P.eyes==='blij'?'<path d="M77 84Q84 74 91 84M109 84Q116 74 123 84" stroke="#1d2b45" stroke-width="4" fill="none" stroke-linecap="round"/>':'<circle cx="84" cy="82" r="9" fill="#fff"/><circle cx="116" cy="82" r="9" fill="#fff"/><circle cx="86" cy="83" r="5" fill="#1d2b45"/><circle cx="118" cy="83" r="5" fill="#1d2b45"/>';
+var mouth=P.mouth==='lach'?'<path d="M84 102Q100 118 116 102" stroke="#1d2b45" stroke-width="4" fill="none" stroke-linecap="round"/>':P.mouth==='open'?'<path d="M84 102Q100 130 116 102Z" fill="#8a2d3b"/>':'<path d="M88 108H112" stroke="#1d2b45" stroke-width="4" stroke-linecap="round"/>';
+var acc=P.acc==='bril'?'<g fill="none" stroke="#1d2b45" stroke-width="3.5"><circle cx="84" cy="82" r="13"/><circle cx="116" cy="82" r="13"/><path d="M97 82H103"/></g>':P.acc==='pet'?'<path d="M56 62Q60 28 100 28Q140 28 144 62Z" fill="#4aa3ff"/><rect x="50" y="58" width="100" height="10" rx="5" fill="#2a78c9"/>':P.acc==='kroon'?'<path d="M66 40L72 14L88 30L100 8L112 30L128 14L134 40Z" fill="#ffc94a" stroke="#b8860b" stroke-width="3"/>':'';
+return back+'<rect x="68" y="190" width="28" height="78" rx="10" fill="'+P.pants+'"/><rect x="104" y="190" width="28" height="78" rx="10" fill="'+P.pants+'"/><rect x="62" y="262" width="38" height="16" rx="8" fill="#1d2b45"/><rect x="100" y="262" width="38" height="16" rx="8" fill="#1d2b45"/><rect x="40" y="130" width="22" height="62" rx="11" fill="'+s+'"/><rect x="138" y="130" width="22" height="62" rx="11" fill="'+s+'"/><rect x="56" y="124" width="88" height="76" rx="22" fill="'+P.shirt+'"/><rect x="90" y="112" width="20" height="18" fill="'+s+'"/><circle cx="100" cy="80" r="44" fill="'+s+'"/><circle cx="72" cy="98" r="7" fill="#ff8a8a" opacity=".45"/><circle cx="128" cy="98" r="7" fill="#ff8a8a" opacity=".45"/>'+front+eyes+mouth+acc}
+function drawPop(){$('#poppet').innerHTML=pop();document.querySelectorAll('#p-ctl button').forEach(function(b){b.setAttribute('aria-pressed',P[b.dataset.k]===b.dataset.v?'true':'false')})}
+var ctl=$('#p-ctl');
+cats.forEach(function(c){var d=document.createElement('div');d.innerHTML='<div class="cat">'+c.n+'</div>';var r=document.createElement('div');r.className='chips';c.o.forEach(function(v){var b=document.createElement('button');b.dataset.k=c.k;b.dataset.v=v;if(c.c){b.className='sw';b.style.background=v;b.setAttribute('aria-label',c.n+' '+v)}else{b.className='chip';b.textContent=v}r.appendChild(b)});d.appendChild(r);ctl.appendChild(d)});
+ctl.onclick=function(e){var b=e.target.closest('button');if(!b)return;P[b.dataset.k]=b.dataset.v;drawPop()};
+$('#p-rand').onclick=function(){cats.forEach(function(c){P[c.k]=c.o[R(c.o.length)]});drawPop()};
+drawPop();
+</script>
+</body>
+</html>

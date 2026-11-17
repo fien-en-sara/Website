@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Strafslagen</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<main>
+<a class="back" href="../index.html">← Sport</a>
+<h2>Strafslagen</h2>
+<p id="s-info">Schot 1 van 5</p>
+<div class="goal" id="s-goal"></div>
+<div class="big" id="s-res">Kies waar je schiet.</div>
+<p style="text-align:center">Goals: <b id="s-score">0</b></p>
+<div class="row" style="justify-content:center"><button class="btn" id="s-again" hidden>Nog een keer 🔄</button></div>
+</main>
+<script>
+var $=function(s){return document.querySelector(s)},R=function(n){return Math.floor(Math.random()*n)};
+var names=['Links','Midden','Rechts'],n=0,goals=0,total=5,lock=false,goal=$('#s-goal'),zs=[];
+names.forEach(function(t,i){var b=document.createElement('button');b.className='zone';b.dataset.i=i;goal.appendChild(b);zs.push(b)});
+function labels(){zs.forEach(function(b,i){b.innerHTML='<small>'+names[i]+'</small>'})}
+function reset(){n=0;goals=0;lock=false;labels();$('#s-info').textContent='Schot 1 van '+total;$('#s-res').textContent='Kies waar je schiet.';$('#s-score').textContent=0;$('#s-again').hidden=true}
+goal.onclick=function(e){var z=e.target.closest('.zone');if(!z||lock)return;lock=true;
+var i=+z.dataset.i,k=R(3);labels();zs[i].textContent='⚽';zs[k].textContent=i===k?'🧤':'🧤';
+n++;if(i===k){$('#s-res').textContent='Gered! 🧤'}else{goals++;zs[i].textContent='⚽';$('#s-res').textContent='GOAL! 🎉'}
+$('#s-score').textContent=goals;
+setTimeout(function(){if(n>=total){$('#s-res').textContent='Eindstand: '+goals+' van '+total;$('#s-again').hidden=false;labels()}else{labels();lock=false;$('#s-info').textContent='Schot '+(n+1)+' van '+total;$('#s-res').textContent='Kies waar je schiet.'}},1300)};
+$('#s-again').onclick=reset;reset();
+</script>
+</body>
+</html>

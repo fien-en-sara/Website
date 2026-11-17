@@ -1,7 +1,438 @@
-<!-- Sara's Snake -->
-<a href="./spelletjes/snake.html" class="card">
-  <div class="icon">🐍</div>
-  <div class="title">Sara's Snake</div>
-  <div class="desc">Help Stitch met het verzamelen van tropische vruchten!</div>
-  <span class="tag">Spel</span>
-</a>
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sara's Snake Avontuur • Gezinshub</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --stitch-blue: #0284c7;
+      --stitch-light: #38bdf8;
+      --stitch-pink: #f472b6;
+      --accent: #38bdf8;
+      --text: #f8fafc;
+      --subtext: #94a3b8;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem 0.5rem;
+      touch-action: manipulation;
+    }
+    header {
+      width: 100%;
+      max-width: 440px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.8rem;
+      padding: 0 0.5rem;
+    }
+    .back-btn {
+      color: var(--subtext);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.4rem 0.8rem;
+      background: var(--card-bg);
+      border-radius: 0.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .scoreboard {
+      display: flex;
+      gap: 0.75rem;
+      font-size: 0.95rem;
+      font-weight: bold;
+    }
+    .score-badge {
+      background: #0369a1;
+      padding: 0.35rem 0.75rem;
+      border-radius: 0.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .high-badge {
+      background: #be185d;
+      padding: 0.35rem 0.75rem;
+      border-radius: 0.5rem;
+    }
+
+    /* Speelveld */
+    .game-card {
+      background: var(--card-bg);
+      border-radius: 1.25rem;
+      padding: 1rem;
+      border: 2px solid rgba(56, 189, 248, 0.25);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    .title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--stitch-light);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    canvas {
+      background: #0f172a;
+      border: 3px solid #0284c7;
+      border-radius: 0.8rem;
+      box-shadow: inset 0 0 15px rgba(0,0,0,0.6);
+      display: block;
+    }
+
+    /* Start / Game-over overlay */
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.88);
+      border-radius: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      z-index: 20;
+    }
+    .overlay h2 {
+      font-size: 1.8rem;
+      color: #f472b6;
+      text-align: center;
+    }
+    .overlay p {
+      color: var(--subtext);
+      font-size: 1rem;
+      text-align: center;
+      max-width: 260px;
+    }
+    .btn-start {
+      background: #0284c7;
+      color: white;
+      border: none;
+      padding: 0.85rem 1.8rem;
+      font-size: 1.15rem;
+      font-weight: 800;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
+      transition: transform 0.1s ease;
+    }
+    .btn-start:active {
+      transform: scale(0.96);
+    }
+
+    /* D-pad voor tablets en telefoons */
+    .dpad {
+      display: grid;
+      grid-template-columns: repeat(3, 62px);
+      grid-template-rows: repeat(3, 62px);
+      gap: 8px;
+      margin-top: 1rem;
+    }
+    .dpad-btn {
+      background: #334155;
+      color: white;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.75rem;
+      font-size: 1.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+    .dpad-btn:active {
+      background: #0284c7;
+      transform: scale(0.92);
+    }
+    .btn-up { grid-column: 2; grid-row: 1; }
+    .btn-left { grid-column: 1; grid-row: 2; }
+    .btn-right { grid-column: 3; grid-row: 2; }
+    .btn-down { grid-column: 2; grid-row: 3; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="../index.html" class="back-btn">← Gezinshub</a>
+    <div class="scoreboard">
+      <div class="score-badge">🌴 Score: <span id="score">0</span></div>
+      <div class="high-badge">🏆 Record: <span id="highscore">0</span></div>
+    </div>
+  </header>
+
+  <div class="game-card">
+    <div class="title"><span>🌺</span> Sara's Snake Avontuur</div>
+
+    <!-- Speelbord -->
+    <canvas id="gameCanvas" width="340" height="340"></canvas>
+
+    <!-- Overlay scherm -->
+    <div class="overlay" id="overlay">
+      <h2 id="overlay-title">Aloha Sara! 🌺</h2>
+      <p id="overlay-msg">Help Stitch zoveel mogelijk tropische lekkernijen te verzamelen!</p>
+      <button class="btn-start" id="startBtn">Speel mee! 🎮</button>
+    </div>
+
+    <!-- Pijltjesknoppen voor iPad/telefoon -->
+    <div class="dpad">
+      <button class="dpad-btn btn-up" id="btnUp">▲</button>
+      <button class="dpad-btn btn-left" id="btnLeft">◀</button>
+      <button class="dpad-btn btn-right" id="btnRight">▶</button>
+      <button class="dpad-btn btn-down" id="btnDown">▼</button>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
+    const highscoreEl = document.getElementById('highscore');
+    const overlay = document.getElementById('overlay');
+    const overlayTitle = document.getElementById('overlay-title');
+    const overlayMsg = document.getElementById('overlay-msg');
+    const startBtn = document.getElementById('startBtn');
+
+    // Afmetingen raster (20x20 cellen van 17px)
+    const gridSize = 17;
+    const tileCount = canvas.width / gridSize;
+
+    let snake = [];
+    let dx = 1;
+    let dy = 0;
+    let nextDx = 1;
+    let nextDy = 0;
+    let food = { x: 10, y: 10, emoji: '🌺' };
+    let score = 0;
+    let highscore = localStorage.getItem('sara_snake_highscore') || 0;
+    highscoreEl.textContent = highscore;
+
+    let gameLoop = null;
+    let isRunning = false;
+    const snacks = ['🌺', '🥥', '🍍', '🍉', '🌴', '🍧'];
+
+    function resetGame() {
+      snake = [
+        { x: 8, y: 10 },
+        { x: 7, y: 10 },
+        { x: 6, y: 10 }
+      ];
+      dx = 1;
+      dy = 0;
+      nextDx = 1;
+      nextDy = 0;
+      score = 0;
+      scoreEl.textContent = score;
+      placeFood();
+    }
+
+    function placeFood() {
+      food.x = Math.floor(Math.random() * tileCount);
+      food.y = Math.floor(Math.random() * tileCount);
+      food.emoji = snacks[Math.floor(Math.random() * snacks.length)];
+
+      // Check of food niet per ongeluk op de slang spawnt
+      for (let part of snake) {
+        if (part.x === food.x && part.y === food.y) {
+          placeFood();
+          break;
+        }
+      }
+    }
+
+    function update() {
+      dx = nextDx;
+      dy = nextDy;
+
+      const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+
+      // Randbotsing check
+      if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+        gameOver();
+        return;
+      }
+
+      // Zelfbotsing check
+      for (let part of snake) {
+        if (head.x === part.x && head.y === part.y) {
+          gameOver();
+          return;
+        }
+      }
+
+      snake.unshift(head);
+
+      // Eten gepakt?
+      if (head.x === food.x && head.y === food.y) {
+        score += 10;
+        scoreEl.textContent = score;
+        if (score > highscore) {
+          highscore = score;
+          highscoreEl.textContent = highscore;
+          localStorage.setItem('sara_snake_highscore', highscore);
+        }
+        placeFood();
+      } else {
+        snake.pop();
+      }
+
+      draw();
+    }
+
+    function draw() {
+      // Achtergrond schoonmaken
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Subtiel strand/raster patroontje
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+      for (let i = 0; i < canvas.width; i += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(0, i); ctx.lineTo(canvas.width, i);
+        ctx.stroke();
+      }
+
+      // Eten tekenen (emoji)
+      ctx.font = '14px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(
+        food.emoji,
+        food.x * gridSize + gridSize / 2,
+        food.y * gridSize + gridSize / 2 + 1
+      );
+
+      // Slang tekenen
+      snake.forEach((part, index) => {
+        const x = part.x * gridSize;
+        const y = part.y * gridSize;
+
+        if (index === 0) {
+          // Kop (Stitch-blauw met oortjes en oogjes)
+          ctx.fillStyle = '#0284c7';
+          ctx.beginPath();
+          ctx.roundRect(x + 1, y + 1, gridSize - 2, gridSize - 2, 6);
+          ctx.fill();
+
+          // Roze oortjes
+          ctx.fillStyle = '#f472b6';
+          ctx.beginPath();
+          ctx.arc(x + 4, y + 3, 2.5, 0, Math.PI * 2);
+          ctx.arc(x + gridSize - 4, y + 3, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Oogjes
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(x + 3, y + 5, 3, 4);
+          ctx.fillRect(x + gridSize - 6, y + 5, 3, 4);
+          ctx.fillStyle = '#000000';
+          ctx.fillRect(x + 4, y + 6, 2, 2);
+          ctx.fillRect(x + gridSize - 5, y + 6, 2, 2);
+        } else {
+          // Lijfje (afwisselend Stitch-blauw & lichtblauw)
+          ctx.fillStyle = index % 2 === 0 ? '#0284c7' : '#38bdf8';
+          ctx.beginPath();
+          ctx.roundRect(x + 2, y + 2, gridSize - 4, gridSize - 4, 4);
+          ctx.fill();
+        }
+      });
+    }
+
+    function gameOver() {
+      clearInterval(gameLoop);
+      isRunning = false;
+      overlayTitle.textContent = "Oeps, gebotst! 💥";
+      overlayMsg.textContent = `Super goed gedaan Sara! Je behaalde score is: ${score}`;
+      startBtn.textContent = "Nog een keer! 🔄";
+      overlay.style.display = 'flex';
+    }
+
+    function startGame() {
+      resetGame();
+      overlay.style.display = 'none';
+      isRunning = true;
+      clearInterval(gameLoop);
+      // Snelheid: elke 115 milliseconden één stapje
+      gameLoop = setInterval(update, 115);
+    }
+
+    startBtn.addEventListener('click', startGame);
+
+    // Besturing: Toetsenbord
+    window.addEventListener('keydown', (e) => {
+      if (!isRunning) return;
+      if (e.key === 'ArrowUp' && dy === 0) { nextDx = 0; nextDy = -1; e.preventDefault(); }
+      if (e.key === 'ArrowDown' && dy === 0) { nextDx = 0; nextDy = 1; e.preventDefault(); }
+      if (e.key === 'ArrowLeft' && dx === 0) { nextDx = -1; nextDy = 0; e.preventDefault(); }
+      if (e.key === 'ArrowRight' && dx === 0) { nextDx = 1; nextDy = 0; e.preventDefault(); }
+    });
+
+    // Besturing: Schermknoppen
+    document.getElementById('btnUp').addEventListener('click', () => {
+      if (isRunning && dy === 0) { nextDx = 0; nextDy = -1; }
+    });
+    document.getElementById('btnDown').addEventListener('click', () => {
+      if (isRunning && dy === 0) { nextDx = 0; nextDy = 1; }
+    });
+    document.getElementById('btnLeft').addEventListener('click', () => {
+      if (isRunning && dx === 0) { nextDx = -1; nextDy = 0; }
+    });
+    document.getElementById('btnRight').addEventListener('click', () => {
+      if (isRunning && dx === 0) { nextDx = 1; nextDy = 0; }
+    });
+
+    // Besturing: Swipen op scherm
+    let touchStartX = 0;
+    let touchStartY = 0;
+    canvas.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    canvas.addEventListener('touchend', (e) => {
+      if (!isRunning) return;
+      const touchEndX = e.changedTouches[0].clientX;
+      const touchEndY = e.changedTouches[0].clientY;
+      const diffX = touchEndX - touchStartX;
+      const diffY = touchEndY - touchStartY;
+
+      if (Math.abs(diffX) > Math.abs(diffY)) {
+        // Horizontaal swipen
+        if (diffX > 25 && dx === 0) { nextDx = 1; nextDy = 0; }
+        else if (diffX < -25 && dx === 0) { nextDx = -1; nextDy = 0; }
+      } else {
+        // Verticaal swipen
+        if (diffY > 25 && dy === 0) { nextDx = 0; nextDy = 1; }
+        else if (diffY < -25 && dy === 0) { nextDx = 0; nextDy = -1; }
+      }
+    }, { passive: true });
+  </script>
+</body>
+</html>

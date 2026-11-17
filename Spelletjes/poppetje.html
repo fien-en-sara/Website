@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Poppetje Maken • Zomer Studio</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text: #f8fafc;
+      --subtext: #94a3b8;
+      --accent: #38bdf8;
+      --pink: #ec4899;
+      --green: #22c55e;
+      --yellow: #facc15;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+    }
+    header {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .back-btn {
+      color: var(--subtext);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.4rem 0.8rem;
+      background: var(--card-bg);
+      border-radius: 0.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .back-btn:hover {
+      color: var(--accent);
+    }
+    .badge {
+      background: #fdf0d5;
+      color: #c2410c;
+      font-weight: 800;
+      font-size: 0.8rem;
+      padding: 0.35rem 0.8rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Twee kolommen indeling */
+    .app-layout {
+      width: 100%;
+      max-width: 900px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+    @media (min-width: 768px) {
+      .app-layout {
+        grid-template-columns: 360px 1fr;
+        align-items: start;
+      }
+    }
+
+    /* Linkerkant: Poppetje canvas */
+    .preview-card {
+      background-color: var(--card-bg);
+      border-radius: 1.25rem;
+      padding: 1.25rem;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.85rem;
+    }
+    .svg-wrapper {
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      max-width: 320px;
+      border-radius: 1rem;
+      overflow: hidden;
+      border: 3px solid rgba(255, 255, 255, 0.15);
+      background: #7dd3fc;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    }
+    svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      width: 100%;
+    }
+    .action-btn {
+      padding: 0.7rem 0.5rem;
+      border-radius: 0.6rem;
+      border: none;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+    }
+    .btn-random { background: var(--yellow); color: #000; }
+    .btn-reset { background: #334155; color: white; }
+
+    /* Rechterkant: Categorieën en opties */
+    .controls-card {
+      background-color: var(--card-bg);
+      border-radius: 1.25rem;
+      padding: 1.25rem;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .tab-bar {
+      display: flex;
+      gap: 0.4rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+    }
+    .tab-bar::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      background: #334155;
+      color: var(--subtext);
+      border: none;
+      padding: 0.5rem 0.8rem;
+      border-radius: 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .tab-btn.active {
+      background: var(--accent);
+      color: #0f172a;
+    }
+
+    .section-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--subtext);
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .option-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .opt-btn {
+      background: #334155;
+      border: 2px solid transparent;
+      border-radius: 0.6rem;
+      color: white;
+      padding: 0.6rem 0.2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .opt-btn span.emoji { font-size: 1.4rem; }
+    .opt-btn.selected {
+      border-color: var(--accent);
+      background: #1e3a8a;
+    }
+
+    .color-row {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+    .color-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid #ffffff;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .color-dot.selected {
+      transform: scale(1.15);
+      border: 3px solid var(--accent);
+      box-shadow: 0 0 10px var(--accent);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="../index.html" class="back-btn">← Gezinshub</a>
+    <div class="badge">☀️ Zomer Editie</div>
+  </header>
+
+  <div class="app-layout">
+    
+    <!-- LINKER KANT: HET POPPETJE -->
+    <div class="preview-card">
+      <div class="svg-wrapper">
+        <svg id="avatar-svg" viewBox="0 0 360 450">
+          <defs>
+            <linearGradient id="beachSky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#38bdf8"/>
+              <stop offset="60%" stop-color="#bae6fd"/>
+              <stop offset="60%" stop-color="#fef08a"/>
+              <stop offset="100%" stop-color="#fde047"/>
+            </linearGradient>
+            <linearGradient id="poolSky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#bae6fd"/>
+              <stop offset="65%" stop-color="#0284c7"/>
+              <stop offset="100%" stop-color="#0369a1"/>
+            </linearGradient>
+            <radialGradient id="shadow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="rgba(0,0,0,0.25)"/>
+              <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
+            </radialGradient>
+          </defs>
+
+          <!-- 1. Achtergrond -->
+          <g id="layer-bg"></g>
+          <ellipse cx="180" cy="410" rx="70" ry="12" fill="url(#shadow)"/>
+
+          <!-- 2. Haar achterkant -->
+          <g id="layer-hair-back"></g>
+
+          <!-- 3. Lichaam -->
+          <g id="layer-body"></g>
+
+          <!-- 4. Broek/Onderkleding -->
+          <g id="layer-bottom"></g>
+
+          <!-- 5. Top/Shirt/Badkleding -->
+          <g id="layer-top"></g>
+
+          <!-- 6. Hoofd & Gezicht -->
+          <g id="layer-head"></g>
+          <g id="layer-face"></g>
+
+          <!-- 7. Haar voorkant -->
+          <g id="layer-hair-front"></g>
+
+          <!-- 8. Details (Bril, Pet, Strandbal, etc) -->
+          <g id="layer-details"></g>
+        </svg>
+      </div>
+
+      <div class="btn-row">
+        <button class="action-btn btn-random" id="btn-rand">🎲 Verras me</button>
+        <button class="action-btn btn-reset" id="btn-rst">🔄 Reset</button>
+      </div>
+    </div>
+
+    <!-- RECHTER KANT: OPTIES -->
+    <div class="controls-card">
+      <div class="tab-bar">
+        <button class="tab-btn active" data-tab="gezicht">Gezicht & Huid</button>
+        <button class="tab-btn" data-tab="haar">Haren</button>
+        <button class="tab-btn" data-tab="kleding">Zomerkleren</button>
+        <button class="tab-btn" data-tab="zomer">Strand & Fun</button>
+      </div>
+
+      <div id="tab-content"></div>
+    </div>
+
+  </div>
+
+  <script>
+    // State[span_3](start_span)[span_3](end_span)
+    const state = {
+      skin: '#f8d3b8',
+      hairStyle: 'staart',
+      hairColor: '#facc15',
+      eye: 'blij',
+      mouth: 'glimlach',
+      top: 'shirt',
+      topColor: '#ec4899',
+      bottom: 'shorts',
+      bottomColor: '#3b82f6',
+      bg: 'strand',
+      extra: 'ijsje',
+      glasses: 'zonnebril'
+    };
+
+    let activeTab = 'gezicht';
+
+    // Opties definities[span_4](start_span)[span_4](end_span)
+    const SKINS = ['#fde7d6', '#f8d3b8', '#e9b58d', '#d2976b', '#a86b43', '#6b3e24'];
+    const HAIR_COLORS = ['#facc15', '#ea580c', '#6b3e26', '#1e293b', '#f472b6', '#38bdf8'];
+    const CLOTH_COLORS = ['#ec4899', '#38bdf8', '#facc15', '#22c55e', '#a855f7', '#ffffff', '#1e293b'];
+
+    function renderTabs() {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === activeTab);
+      });
+
+      const container = document.getElementById('tab-content');
+      container.innerHTML = '';
+
+      if (activeTab === 'gezicht') {
+        container.innerHTML = `
+          <div class="section-title">Huidskleur</div>
+          <div class="color-row" id="skin-colors"></div>
+
+          <div class="section-title">Ogen</div>
+          <div class="option-grid">
+            <button class="opt-btn ${state.eye==='blij'?'selected':''}" onclick="setOpt('eye','blij')"><span class="emoji">😊</span>Blij</button>
+            <button class="opt-btn ${state.eye==='sterren'?'selected':''}" onclick="setOpt('eye','sterren')"><span class="emoji">🤩</span>Sterren</button>
+            <button class="opt-btn ${state.eye==='knipoog'?'selected':''}" onclick="setOpt('eye','knipoog')"><span class="emoji">😉</span>Knipoog</button>
+          </div>
+
+          <div class="section-title">Mond</div>
+          <div class="option-grid">
+            <button class="opt-btn ${state.mouth==='glimlach'?'selected':''}" onclick="setOpt('mouth','glimlach')"><span class="emoji">🙂</span>Lach</button>
+            <button class="opt-btn ${state.mouth==='groot'?'selected':''}" onclick="setOpt('mouth','groot')"><span class="emoji">😄</span>Groot</button>
+            <button class="opt-btn ${state.mouth==='tong'?'selected':''}" onclick="setOpt('mouth','tong')"><span class="emoji">😛</span>Tong</button>
+          </div>
+        `;
+        renderColors('skin-colors', SKINS, state.skin, (c) => setOpt('skin', c));
+      }
+
+      if (activeTab === 'haar') {
+        container.innerHTML = `
+          <div class="section-title">Haarstijl</div>
+          <div class="option-grid">
+            <button class="opt-btn ${state.hairStyle==='staart'?'selected':''}" onclick="setOpt('hairStyle','staart')"><span class="emoji">👱‍♀️</span>Staart</button>
+            <button class="opt-btn ${state.hairStyle==='lang'?'selected':''}" onclick="setOpt('hairStyle','lang')"><span class="emoji">👩</span>Lang</button>
+            <button class="opt-btn ${state.hairStyle==='knotjes'?'selected':''}" onclick="setOpt('hairStyle','knotjes')"><span class="emoji">🎀</span>Knotjes</button>
+            <button class="opt-btn ${state.hairStyle==='kort'?'selected':''}" onclick="setOpt('hairStyle','kort')"><span class="emoji">🧒</span>Kort</button>
+          </div>
+
+          <div class="section-title">Haarkleur</div>
+          <div class="color-row" id="hair-colors"></div>
+        `;
+        renderColors('hair-colors', HAIR_COLORS, state.hairColor, (c) => setOpt('hairColor', c));
+      }
+
+      if (activeTab === 'kleding') {
+        container.innerHTML = `
+          <div class="section-title">Bovenkleding / Badpak</div>
+          <div class="option-grid">
+            <button class="opt-btn ${state.top==='shirt'?'selected':''}" onclick="setOpt('top','shirt')"><span class="emoji">👕</span>T-shirt</button>
+            <button class="opt-btn ${state.top==='topje'?'selected':''}" onclick="setOpt('top','topje')"><span class="emoji">🎽</span>Topje</button>
+            <button class="opt-btn ${state.top==='badpak'?'selected':''}" onclick="setOpt('top','badpak')"><span class="emoji">🩱</span>Badpak</button>
+          </div>
+          <div class="color-row" id="top-colors"></div>
+
+          <div class="section-title">Broekje / Rokje</div>
+          <div class="option-grid">
+            <button class="opt-btn ${state.bottom==='shorts'?'selected':''}" onclick="setOpt('bottom','shorts')"><span class="emoji">🩳</span>Short</button>
+            <button class="opt-btn ${state.bottom==='rokje'?'selected':''}" onclick="setOpt('bottom','rokje')"><span class="emoji">🩰</span>Rokje</button>
+            <button class="opt-btn ${state.bottom==='geen'?'selected':''}" onclick="setOpt('bottom','geen')"><span class="emoji">🚫</span>Geen</button>
+          </div>
+          <div class="color-row" id="bottom-colors"></div>
+        `;
+        renderColors('top-colors', CLOTH_COLORS, state.topColor, (c) => setOpt('topColor', c));
+        renderColors('bottom-colors', CLOTH_COLORS, state.bottomColor, (c) => setOpt('bottomColor', c));
+      }
+
+      if (activeTab === 'zomer') {
+        container.innerHTML = `
+          <div class="section-title">Strand & Zwem Extra's</div>
+          <div class="option-grid">
+            <button class="opt-btn ${state.extra==='ijsje'?'selected':''}" onclick="setOpt('extra','ijsje')"><span class="emoji">🍦</span>IJsje</button>
+            <button class="opt-btn ${state.extra==='strandbal'?'selected':''}" onclick="setOpt('extra','strandbal')"><span class="emoji">🏖️</span>Strandbal</button>
+            <button class="opt-btn ${state.extra==='geen'?'selected':''}" onclick="setOpt('extra','geen')"><span class="emoji">🚫</span>Geen</button>
+          </div>
+
+          <div class="section-title">Bril & Duikbril</div>
+          <div class="option-grid">
+            <button class="opt-btn ${state.glasses==='zonnebril'?'selected':''}" onclick="setOpt('glasses','zonnebril')"><span class="emoji">🕶️</span>Zonnebril</button>
+            <button class="opt-btn ${state.glasses==='duikbril'?'selected':''}" onclick="setOpt('glasses','duikbril')"><span class="emoji">🤿</span>Duikbril</button>
+            <button class="opt-btn ${state.glasses==='geen'?'selected':''}" onclick="setOpt('glasses','geen')"><span class="emoji">🚫</span>Geen</button>
+          </div>
+
+          <div class="section-title">Locatie</div>
+          <div class="option-grid">
+            <button class="opt-btn ${state.bg==='strand'?'selected':''}" onclick="setOpt('bg','strand')"><span class="emoji">🏖️</span>Strand</button>
+            <button class="opt-btn ${state.bg==='zwembad'?'selected':''}" onclick="setOpt('bg','zwembad')"><span class="emoji">🏊</span>Zwembad</button>
+          </div>
+        `;
+      }
+    }
+
+    function renderColors(elId, colors, selected, onSelect) {
+      const el = document.getElementById(elId);
+      if (!el) return;
+      colors.forEach(col => {
+        const d = document.createElement('div');
+        d.className = `color-dot ${selected === col ? 'selected' : ''}`;
+        d.style.backgroundColor = col;
+        d.onclick = () => onSelect(col);
+        el.appendChild(d);
+      });
+    }
+
+    function setOpt(key, val) {
+      state[key] = val;
+      renderTabs();
+      drawCharacter();
+    }
+
+    // SVG Tekenen[span_5](start_span)[span_5](end_span)
+    function drawCharacter() {
+      // 1. BG[span_6](start_span)[span_6](end_span)
+      document.getElementById('layer-bg').innerHTML = state.bg === 'strand'
+        ? `<rect width="360" height="450" fill="url(#beachSky)"/>
+           <circle cx="70" cy="70" r="30" fill="#facc15" opacity="0.9"/>`
+        : `<rect width="360" height="450" fill="url(#poolSky)"/>
+           <circle cx="280" cy="60" r="24" fill="#fef08a"/>`;
+
+      // 2. Haar achter[span_7](start_span)[span_7](end_span)
+      let hBack = '';
+      if (state.hairStyle === 'lang') {
+        hBack = `<path d="M110 120 Q100 230 114 310 Q180 330 246 310 Q260 230 250 120 Z" fill="${state.hairColor}"/>`;
+      } else if (state.hairStyle === 'knotjes') {
+        hBack = `<circle cx="120" cy="80" r="26" fill="${state.hairColor}"/>
+                 <circle cx="240" cy="80" r="26" fill="${state.hairColor}"/>`;
+      } else if (state.hairStyle === 'staart') {
+        hBack = `<path d="M210 90 Q275 100 270 200 Q250 215 240 190 Q240 135 200 110 Z" fill="${state.hairColor}"/>`;
+      }
+      document.getElementById('layer-hair-back').innerHTML = hBack;
+
+      // 3. Lichaam[span_8](start_span)[span_8](end_span)
+      document.getElementById('layer-body').innerHTML = `
+        <rect x="168" y="180" width="24" height="28" fill="${state.skin}" stroke="#334155" stroke-width="2"/>
+        <!-- Armen & Benen -->
+        <rect x="150" y="290" width="22" height="105" rx="10" fill="${state.skin}" stroke="#334155" stroke-width="2"/>
+        <rect x="188" y="290" width="22" height="105" rx="10" fill="${state.skin}" stroke="#334155" stroke-width="2"/>
+        <path d="M140 215 Q115 250 118 300" stroke="${state.skin}" stroke-width="18" stroke-linecap="round" fill="none"/>
+        <path d="M220 215 Q245 250 242 300" stroke="${state.skin}" stroke-width="18" stroke-linecap="round" fill="none"/>
+        <!-- Handen -->
+        <circle cx="118" cy="305" r="10" fill="${state.skin}"/>
+        <circle cx="242" cy="305" r="10" fill="${state.skin}"/>
+        <!-- Romp -->
+        <rect x="142" y="202" width="76" height="96" rx="10" fill="${state.skin}"/>
+      `;
+
+      // 4. Broek / Onderkleding[span_9](start_span)[span_9](end_span)
+      let bHtml = '';
+      if (state.bottom === 'shorts') {
+        bHtml = `<path d="M140 285 L220 285 L215 335 L184 335 L180 315 L176 335 L145 335 Z" fill="${state.bottomColor}" stroke="#334155" stroke-width="2"/>`;
+      } else if (state.bottom === 'rokje') {
+        bHtml = `<path d="M140 285 L220 285 L236 340 Q180 350 124 340 Z" fill="${state.bottomColor}" stroke="#334155" stroke-width="2"/>`;
+      }
+      document.getElementById('layer-bottom').innerHTML = bHtml;
+
+      // 5. Tops / Bovenkleding[span_10](start_span)[span_10](end_span)
+      let tHtml = '';
+      if (state.top === 'shirt') {
+        tHtml = `<path d="M142 204 L218 204 L238 234 L218 244 L218 290 L142 290 L142 244 L122 234 Z" fill="${state.topColor}" stroke="#334155" stroke-width="2"/>`;
+      } else if (state.top === 'topje') {
+        tHtml = `<rect x="146" y="215" width="68" height="75" rx="6" fill="${state.topColor}" stroke="#334155" stroke-width="2"/>`;
+      } else if (state.top === 'badpak') {
+        tHtml = `<path d="M146 215 L214 215 L214 315 L185 315 L180 300 L175 315 L146 315 Z" fill="${state.topColor}" stroke="#334155" stroke-width="2"/>`;
+      }
+      document.getElementById('layer-top').innerHTML = tHtml;
+
+      // 6. Hoofd & Gezicht[span_11](start_span)[span_11](end_span)
+      document.getElementById('layer-head').innerHTML = `
+        <rect x="125" y="58" width="110" height="125" rx="55" fill="${state.skin}" stroke="#334155" stroke-width="2"/>
+        <circle cx="123" cy="125" r="12" fill="${state.skin}"/>
+        <circle cx="237" cy="125" r="12" fill="${state.skin}"/>
+      `;
+
+      let fHtml = '';
+      // Ogen[span_12](start_span)[span_12](end_span)
+      if (state.eye === 'blij') {
+        fHtml += `<circle cx="156" cy="118" r="6" fill="#1e293b"/><circle cx="204" cy="118" r="6" fill="#1e293b"/>`;
+      } else if (state.eye === 'sterren') {
+        fHtml += `<text x="148" y="125" font-size="16">⭐</text><text x="196" y="125" font-size="16">⭐</text>`;
+      } else if (state.eye === 'knipoog') {
+        fHtml += `<circle cx="156" cy="118" r="6" fill="#1e293b"/><path d="M196 118 Q204 112 212 118" stroke="#1e293b" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+      }
+
+      // Mond[span_13](start_span)[span_13](end_span)
+      if (state.mouth === 'glimlach') {
+        fHtml += `<path d="M168 145 Q180 156 192 145" stroke="#be123c" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+      } else if (state.mouth === 'groot') {
+        fHtml += `<path d="M166 144 Q180 165 194 144 Z" fill="#be123c"/>`;
+      } else if (state.mouth === 'tong') {
+        fHtml += `<path d="M168 145 Q180 156 192 145" stroke="#be123c" stroke-width="3" fill="none"/><circle cx="180" cy="154" r="5" fill="#fb7185"/>`;
+      }
+      document.getElementById('layer-face').innerHTML = fHtml;
+
+      // 7. Haar voorkant[span_14](start_span)[span_14](end_span)
+      document.getElementById('layer-hair-front').innerHTML = `
+        <path d="M122 105 Q120 50 180 50 Q240 50 238 105 Q230 70 190 70 Q160 80 122 105 Z" fill="${state.hairColor}"/>
+      `;
+
+      // 8. Details (Bril, IJsje, Strandbal)[span_15](start_span)[span_15](end_span)
+      let dHtml = '';
+      if (state.glasses === 'zonnebril') {
+        dHtml += `
+          <g fill="#0f172a">
+            <rect x="140" y="108" width="32" height="18" rx="5"/>
+            <rect x="188" y="108" width="32" height="18" rx="5"/>
+            <line x1="172" y1="114" x2="188" y2="114" stroke="#0f172a" stroke-width="3"/>
+          </g>
+        `;
+      } else if (state.glasses === 'duikbril') {
+        dHtml += `
+          <g fill="rgba(56,189,248,0.4)" stroke="#0284c7" stroke-width="3">
+            <rect x="136" y="105" width="88" height="26" rx="10"/>
+            <path d="M136 118 L120 118 M224 118 L240 118" stroke-width="4"/>
+          </g>
+        `;
+      }
+
+      if (state.extra === 'ijsje') {
+        dHtml += `
+          <!-- IJsje in de rechterhand -->
+          <g transform="translate(235, 260)">
+            <polygon points="10,40 2,18 18,18" fill="#d97706"/>
+            <circle cx="10" cy="14" r="10" fill="#f43f5e"/>
+            <circle cx="10" cy="4" r="3" fill="#be123c"/>
+          </g>
+        `;
+      } else if (state.extra === 'strandbal') {
+        dHtml += `
+          <!-- Strandbal naast de voeten -->
+          <g transform="translate(70, 340)">
+            <circle cx="25" cy="25" r="25" fill="#facc15" stroke="#334155" stroke-width="2"/>
+            <path d="M25 0 Q40 25 25 50 Q10 25 25 0" fill="#ec4899"/>
+            <circle cx="25" cy="25" r="5" fill="#ffffff"/>
+          </g>
+        `;
+      }
+      document.getElementById('layer-details').innerHTML = dHtml;
+    }
+
+    // Events[span_16](start_span)[span_16](end_span)
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeTab = btn.dataset.tab;
+        renderTabs();
+      });
+    });
+
+    document.getElementById('btn-rand').addEventListener('click', () => {
+      state.skin = SKINS[Math.floor(Math.random() * SKINS.length)];
+      state.hairColor = HAIR_COLORS[Math.floor(Math.random() * HAIR_COLORS.length)];
+      state.topColor = CLOTH_COLORS[Math.floor(Math.random() * CLOTH_COLORS.length)];
+      state.bottomColor = CLOTH_COLORS[Math.floor(Math.random() * CLOTH_COLORS.length)];
+      state.hairStyle = ['staart', 'lang', 'knotjes', 'kort'][Math.floor(Math.random() * 4)];
+      state.extra = ['ijsje', 'strandbal', 'geen'][Math.floor(Math.random() * 3)];
+      state.glasses = ['zonnebril', 'duikbril', 'geen'][Math.floor(Math.random() * 3)];
+      renderTabs();
+      drawCharacter();
+    });
+
+    document.getElementById('btn-rst').addEventListener('click', () => {
+      state.skin = '#f8d3b8';
+      state.hairStyle = 'staart';
+      state.hairColor = '#facc15';
+      state.top = 'shirt';
+      state.topColor = '#ec4899';
+      state.bottom = 'shorts';
+      state.bottomColor = '#3b82f6';
+      state.extra = 'ijsje';
+      state.glasses = 'zonnebril';
+      renderTabs();
+      drawCharacter();
+    });
+
+    // Start
+    renderTabs();
+    drawCharacter();
+  </script>
+</body>
+</html>

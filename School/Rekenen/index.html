@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rekenspelletjes</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+<style>.food{font-size:30px;text-align:center;min-height:44px;word-break:break-all}
+.sum2{font-size:34px;font-weight:800;text-align:center;margin:6px 0 12px;line-height:1.25}
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="../index.html">← School</a>
+<h2>Rekenspelletjes 🧮</h2>
+<div id="r-setup" class="card">
+<div class="cat">Wat ga je doen?</div><div class="chips" id="r-mode"></div>
+<div id="r-lv"><div class="cat">Hoe groot?</div><div class="chips" id="r-lvl"></div></div>
+<div class="cat">Wie wil je voeren?</div><div class="chips" id="r-mas"></div>
+<button class="btn" id="r-go">Start 🚀</button>
+</div>
+<div id="r-quiz" class="card" hidden>
+<div class="bar"><div id="r-bar"></div></div>
+<div class="food" id="r-food"></div>
+<div class="sum2" id="r-q"></div>
+<div id="r-numw"><div class="ans" id="r-a" aria-live="polite"></div><div class="pad" id="r-pad"></div></div>
+<div class="choices" id="r-ch" hidden></div>
+<p id="r-fb" style="text-align:center;font-size:22px;font-weight:800;min-height:32px;margin:10px 0 0"></p>
+</div>
+<div id="r-end" class="card" hidden>
+<h2>Goed gedaan! 🎉</h2><div class="big" id="r-score"></div><p id="r-msg" style="text-align:center"></p>
+<div class="row" style="justify-content:center"><button class="btn" id="r-again">Nog een keer 🔄</button><button class="btn alt" id="r-new">Andere sommen</button></div>
+</div>
+</main>
+<script>
+var $=function(s){return document.querySelector(s)},R=function(n){return Math.floor(Math.random()*n)};
+function shuffle(a){return a.sort(function(){return Math.random()-.5})}
+function chips(box,items,cur,set){box.innerHTML='';items.forEach(function(it){var b=document.createElement('button');b.className='chip';b.textContent=it.l;b.setAttribute('aria-pressed',it.v===cur()?'true':'false');b.onclick=function(){set(it.v);chips(box,items,cur,set)};box.appendChild(b)})}
+var mode='plus',level=100,mas='🐴',FOOD={'🐴':'🥕','🐶':'🦴','🏑':'⚽'},Q,qi,score,buf='',lock=false;
+chips($('#r-mode'),[{l:'➕ Optellen',v:'plus'},{l:'➖ Aftrekken',v:'min'},{l:'🔀 Door elkaar',v:'mix'},{l:'💶 Wisselgeld',v:'geld'}],function(){return mode},function(v){mode=v;$('#r-lv').hidden=v==='geld'});
+chips($('#r-lvl'),[{l:'Tot 20',v:20},{l:'Tot 100',v:100}],function(){return level},function(v){level=v});
+chips($('#r-mas'),[{l:'🐴 Paard',v:'🐴'},{l:'🐶 Hond',v:'🐶'},{l:'🏑 Hockeyteam',v:'🏑'}],function(){return mas},function(v){mas=v});
+function show(id){['r-setup','r-quiz','r-end'].forEach(function(x){$('#'+x).hidden=x!==id})}
+function eur(c){return '€ '+(c/100).toFixed(2).replace('.',',')}
+function make(m){if(m==='mix')m=R(2)?'plus':'min';var a,b;
+if(m==='plus'){a=1+R(level-1);b=1+R(level-a);return{q:a+' + '+b+' = ?',a:a+b}}
+if(m==='min'){a=2+R(level-1);b=1+R(a-1);return{q:a+' − '+b+' = ?',a:a-b}}
+var p=5*(20+R(180)),pay=[500,1000,2000].filter(function(x){return x>p})[0],ans=pay-p,set={};set[ans]=1;
+shuffle([ans+50,ans-50,ans+100,ans-100,ans+10,ans-10,ans+5]).forEach(function(x){if(x>0&&Object.keys(set).length<4)set[x]=1});
+return{q:'Je koopt iets van '+eur(p)+'.<br>Je betaalt met '+eur(pay)+'.<br>Hoeveel wisselgeld?',a:ans,ch:shuffle(Object.keys(set).map(Number))}}
+function start(){Q=[];for(var i=0;i<10;i++)Q.push(make(mode));qi=0;score=0;show('r-quiz');ask()}
+function ask(){buf='';lock=false;var q=Q[qi];$('#r-bar').style.width=(qi*10)+'%';$('#r-food').textContent=mas+' '+FOOD[mas].repeat(score);$('#r-q').innerHTML=q.q;$('#r-fb').textContent='';
+$('#r-numw').hidden=!!q.ch;$('#r-ch').hidden=!q.ch;$('#r-a').textContent='';$('#r-a').className='ans';
+if(q.ch){var b=$('#r-ch');b.innerHTML='';q.ch.forEach(function(c){var x=document.createElement('button');x.textContent=eur(c);x.onclick=function(){answer(c,x)};b.appendChild(x)})}}
+function answer(v,el){if(lock)return;lock=true;var q=Q[qi],ok=v===q.a,f=$('#r-fb');
+if(ok){score++;f.textContent='✓ Goed!';f.style.color='var(--mint)';if(el)el.style.background='var(--ok)'}
+else{f.textContent='✗ Het antwoord is '+(q.ch?eur(q.a):q.a);f.style.color='var(--coral)';if(el)el.style.background='var(--bad)'}
+if(!q.ch){$('#r-a').className='ans '+(ok?'ok':'bad')}
+setTimeout(function(){qi++;if(qi>=10)end();else ask()},ok?800:1800)}
+var pad=$('#r-pad');['1','2','3','4','5','6','7','8','9','⌫','0','OK'].forEach(function(k){var b=document.createElement('button');b.textContent=k;b.dataset.k=k;pad.appendChild(b)});
+pad.onclick=function(e){var k=e.target.dataset.k;if(!k||lock)return;
+if(k==='⌫')buf=buf.slice(0,-1);else if(k==='OK'){if(buf)answer(+buf,null);return}else if(buf.length<3)buf+=k;$('#r-a').textContent=buf};
+function end(){show('r-end');$('#r-food').textContent='';$('#r-score').textContent=score+' van 10 goed '+mas+FOOD[mas].repeat(score);$('#r-msg').textContent=score===10?'Alles goed! Wat een topper.':score>=7?'Knap gerekend!':'Blijf oefenen, het wordt steeds beter.'}
+$('#r-go').onclick=start;$('#r-again').onclick=start;$('#r-new').onclick=function(){show('r-setup')};
+</script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tekenbord</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+<style>#d-cv{width:100%;aspect-ratio:4/3;background:#fff;border:3px solid var(--ink);border-radius:16px;touch-action:none;display:block}
+#k-svg{width:100%;background:#fff;border:3px solid var(--ink);border-radius:16px;display:block}
+#k-svg path,#k-svg ellipse,#k-svg rect,#k-svg circle{cursor:pointer}
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="../index.html">← Spelletjes</a>
+<h2>Tekenbord 🎨</h2>
+<div class="chips" id="t-tabs"></div>
+<div class="chips" id="t-col" aria-label="Kleuren"></div>
+<div id="t-draw">
+<div class="chips" id="t-tool"></div>
+<div class="chips" id="t-stamps" hidden></div>
+<canvas id="d-cv" aria-label="Tekenvlak"></canvas>
+<div class="row" style="margin-top:12px"><button class="btn alt" id="d-undo">↩️ Ongedaan</button><button class="btn" id="d-clear">🗑️ Wissen</button><button class="btn" id="d-save" style="background:var(--mint)">💾 Bewaar</button></div>
+</div>
+<div id="t-kleur" hidden>
+<div class="chips" id="k-pick"></div>
+<p style="margin:0 0 8px">Kies een kleur en tik op een vlak.</p>
+<svg id="k-svg" viewBox="0 0 300 240"></svg>
+<div class="row" style="margin-top:12px"><button class="btn" id="k-reset">🔄 Opnieuw</button></div>
+</div>
+</main>
+<script>
+var $=function(s){return document.querySelector(s)},R=function(n){return Math.floor(Math.random()*n)};
+function shuffle(a){return a.sort(function(){return Math.random()-.5})}
+function chips(box,items,cur,set){box.innerHTML='';items.forEach(function(it){var b=document.createElement('button');b.className='chip';b.textContent=it.l;b.setAttribute('aria-pressed',it.v===cur()?'true':'false');b.onclick=function(){set(it.v);chips(box,items,cur,set)};box.appendChild(b)})}
+var COLS=['#1d2b45','#ff6b57','#ff9f1c','#ffc94a','#8fd14f','#2fb98f','#4aa3ff','#6f62f5','#f58ac4','#8b5a2b','#b0b7c3','#ffffff'],color=COLS[1],view='draw',tool='pen',stamp='🐴';
+var cb=$('#t-col');COLS.forEach(function(c){var b=document.createElement('button');b.className='sw';b.style.background=c;b.setAttribute('aria-label','kleur '+c);b.dataset.c=c;cb.appendChild(b)});
+function sw(){cb.querySelectorAll('.sw').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.c===color?'true':'false')})}
+cb.onclick=function(e){var b=e.target.closest('.sw');if(!b)return;color=b.dataset.c;if(tool==='eraser')tool='pen';drawTool();sw()};sw();
+chips($('#t-tabs'),[{l:'✏️ Tekenen',v:'draw'},{l:'🖍️ Kleurplaat',v:'kleur'}],function(){return view},function(v){view=v;$('#t-draw').hidden=v!=='draw';$('#t-kleur').hidden=v!=='kleur'});
+function drawTool(){chips($('#t-tool'),[{l:'✏️ Potlood',v:'pen'},{l:'🖌️ Dik',v:'thick'},{l:'🧽 Gum',v:'eraser'},{l:'🐴 Stempel',v:'stamp'}],function(){return tool},function(v){tool=v;$('#t-stamps').hidden=v!=='stamp';drawTool()})}
+drawTool();
+chips($('#t-stamps'),['🐴','🐶','🏑','⭐','❤️','🌈','🦴','🥕'].map(function(s){return{l:s,v:s}}),function(){return stamp},function(v){stamp=v});
+var cv=$('#d-cv'),cx,dpr=window.devicePixelRatio||1,stack=[],drawing=false,last;
+cv.width=cv.clientWidth*dpr;cv.height=cv.clientWidth*.75*dpr;cx=cv.getContext('2d');cx.fillStyle='#fff';cx.fillRect(0,0,cv.width,cv.height);cx.lineCap=cx.lineJoin='round';
+function pos(e){var r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)*cv.width/r.width,y:(e.clientY-r.top)*cv.height/r.height}}
+function snap(){stack.push(cx.getImageData(0,0,cv.width,cv.height));if(stack.length>20)stack.shift()}
+cv.addEventListener('pointerdown',function(e){e.preventDefault();cv.setPointerCapture(e.pointerId);var p=pos(e);snap();
+if(tool==='stamp'){cx.font=(60*dpr)+'px serif';cx.textAlign='center';cx.textBaseline='middle';cx.fillText(stamp,p.x,p.y);return}
+drawing=true;last=p;line(p,p)});
+function line(a,b){cx.strokeStyle=tool==='eraser'?'#fff':color;cx.lineWidth=({pen:5,thick:16,eraser:30})[tool]*dpr;cx.beginPath();cx.moveTo(a.x,a.y);cx.lineTo(b.x,b.y);cx.stroke()}
+cv.addEventListener('pointermove',function(e){if(!drawing)return;var p=pos(e);line(last,p);last=p});
+cv.addEventListener('pointerup',function(){drawing=false});cv.addEventListener('pointercancel',function(){drawing=false});
+$('#d-undo').onclick=function(){var s=stack.pop();if(s)cx.putImageData(s,0,0)};
+$('#d-clear').onclick=function(){snap();cx.fillStyle='#fff';cx.fillRect(0,0,cv.width,cv.height)};
+$('#d-save').onclick=function(){cv.toBlob(function(b){var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='tekening.png';a.click()})};
+var ART={
+'🐴 Paard':'<ellipse cx="140" cy="130" rx="85" ry="45"/><path d="M205 105L238 45L268 62L235 130Z"/><ellipse cx="268" cy="52" rx="30" ry="19" transform="rotate(25 268 52)"/><path d="M248 36L254 14L266 32Z"/><path d="M205 105L238 45L226 40L190 100Z"/><rect x="70" y="165" width="16" height="60" rx="6"/><rect x="100" y="170" width="16" height="55" rx="6"/><rect x="170" y="170" width="16" height="55" rx="6"/><rect x="200" y="165" width="16" height="60" rx="6"/><path d="M58 115Q20 120 25 185Q50 150 62 140Z"/><rect x="115" y="92" width="50" height="20" rx="8"/>',
+'🐶 Hond':'<ellipse cx="140" cy="135" rx="75" ry="40"/><circle cx="235" cy="95" r="38"/><ellipse cx="205" cy="78" rx="12" ry="28" transform="rotate(-20 205 78)"/><ellipse cx="262" cy="78" rx="12" ry="28" transform="rotate(20 262 78)"/><ellipse cx="252" cy="108" rx="20" ry="15"/><circle cx="262" cy="104" r="6"/><circle cx="240" cy="86" r="5"/><rect x="80" y="160" width="16" height="55" rx="6"/><rect x="110" y="165" width="16" height="50" rx="6"/><rect x="165" y="165" width="16" height="50" rx="6"/><rect x="195" y="160" width="16" height="55" rx="6"/><path d="M68 120Q30 90 40 60Q55 85 75 105Z"/><rect x="200" y="122" width="34" height="10" rx="5"/>',
+'🏑 Hockey':'<rect x="0" y="0" width="300" height="150"/><circle cx="50" cy="45" r="28"/><ellipse cx="170" cy="40" rx="45" ry="16"/><rect x="0" y="150" width="300" height="90"/><rect x="215" y="100" width="75" height="60" rx="4"/><rect x="100" y="40" width="16" height="140" rx="6" transform="rotate(20 108 110)"/><path d="M78 205Q110 225 150 210L146 193Q112 203 86 186Z"/><circle cx="190" cy="205" r="14"/>'};
+var art='🐴 Paard';
+function paint(){$('#k-svg').innerHTML='<g fill="#fff" stroke="#1d2b45" stroke-width="3" stroke-linejoin="round">'+ART[art]+'</g>'}
+chips($('#k-pick'),Object.keys(ART).map(function(k){return{l:k,v:k}}),function(){return art},function(v){art=v;paint()});
+$('#k-svg').onclick=function(e){if(e.target.tagName!=='svg')e.target.style.fill=color};
+$('#k-reset').onclick=paint;paint();
+</script>
+</body>
+</html>

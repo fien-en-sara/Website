@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hockeybord</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+<style>main{max-width:1000px}
+#bw{overflow-x:auto}
+#bd{display:block;width:100%;min-width:560px;touch-action:none;border-radius:14px;user-select:none;-webkit-user-select:none}
+details.card summary{font-weight:800;cursor:pointer}
+.nmg{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
+.nmg label{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.nmg label b{min-width:22px;text-align:right}
+.nmg input,.sv input{font:inherit;padding:6px 10px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--ink);width:100%;min-width:0}
+.srow{display:flex;align-items:center;gap:8px;margin-top:8px}.srow span{flex:1}
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="../index.html">← Sport</a>
+<h2>Hockey tactiekbord 🏑</h2>
+<div class="chips" id="h-n"></div>
+<div id="bw"><svg id="bd" viewBox="0 0 800 480" role="img" aria-label="Hockeyveld"></svg></div>
+<p style="font-size:15px;margin:8px 0;opacity:.85">Sleep de spelers over het veld. Tik een speler aan om de bal aan hem of haar te geven. Op een telefoon werkt het bord het best met het scherm gedraaid.</p>
+<div class="card">
+<div class="row" style="margin-bottom:10px"><span id="h-sel" style="flex:1;min-width:150px">Tik een speler aan.</span><button class="btn alt" id="h-ball">🏑 Bal naar deze speler</button></div>
+<div class="row"><button class="chip" id="h-draw" aria-pressed="false">✏️ Pijl tekenen</button><button class="chip" id="h-noar">Pijlen wissen</button></div>
+</div>
+<div class="card">
+<div class="cat" style="margin-top:0">Stappen</div>
+<div class="chips" id="h-steps"></div>
+<div class="row"><button class="btn" id="h-new">➕ Nieuwe stap</button><button class="btn alt" id="h-del">🗑️ Stap weg</button></div>
+<p style="font-size:15px;margin:8px 0;opacity:.85">Zet eerst de beginopstelling. Tik dan op Nieuwe stap, verplaats de spelers en geef eventueel de bal aan een ander (een pass). Herhaal dit en druk op Afspelen.</p>
+<div class="row"><button class="btn" id="h-play" style="background:var(--mint)">▶️ Afspelen</button><div class="chips" id="h-spd" style="margin:0"></div></div>
+</div>
+<details class="card"><summary>Namen invullen</summary><div class="nmg" id="h-nm"></div></details>
+<details class="card sv"><summary>Tactieken opslaan en openen</summary>
+<div class="srow"><input id="h-sname" type="text" placeholder="Naam van de tactiek" aria-label="Naam van de tactiek"><button class="btn" id="h-save">💾 Opslaan</button></div>
+<div id="h-list"></div></details>
+<div class="row"><button class="btn" id="h-reset" style="background:var(--ink)">🧹 Alles opnieuw</button></div>
+</main>
+<script>
+var $=function(s){return document.querySelector(s)},R=function(n){return Math.floor(Math.random()*n)};
+function shuffle(a){return a.sort(function(){return Math.random()-.5})}
+function chips(box,items,cur,set){box.innerHTML='';items.forEach(function(it){var b=document.createElement('button');b.className='chip';b.textContent=it.l;b.setAttribute('aria-pressed',it.v===cur()?'true':'false');b.onclick=function(){set(it.v);chips(box,items,cur,set)};box.appendChild(b)})}
+var W=800,H=480,TC={A:'#2f6fed',B:'#e8553d'},TN={A:'Wij',B:'Tegenstander'},svg=$('#bd'),tk={A:[],B:[]},ballEl,arG,playing=false,drawMode=false,sel=null,raf=0,speed=1,KEY='hockey-laatste',SK='hockey-tactieken',S=null,drag=null,arrow=null;
+function form(n,t){var L=n===11?[[45,240],[150,80],[150,190],[150,290],[150,400],[260,120],[260,240],[260,360],[360,120],[360,240],[360,360]]:[[45,240],[150,170],[150,310],[260,130],[260,350],[360,240]];return L.map(function(p){return[t==='A'?p[0]:W-p[0],p[1]]})}
+function start(n){return{p:{A:form(n,'A'),B:form(n,'B')},b:{t:'A',i:n===11?9:5},a:[]}}
+function fresh(n){var nm={A:[],B:[]};for(var i=0;i<11;i++){nm.A.push('');nm.B.push('')}return{n:n,names:nm,frames:[start(n)],cur:0}}
+try{var s0=JSON.parse(localStorage.getItem(KEY));if(s0&&(s0.n===6||s0.n===11)&&s0.frames&&s0.frames.length&&s0.names&&s0.names.A.length===11&&s0.cur<s0.frames.length)S=s0}catch(e){}
+if(!S)S=fresh(11);
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function fr(){return S.frames[S.cur]}
+function bp(f){var p=f.p[f.b.t][f.b.i];return[p[0]+17,p[1]+15]}
+var FIELD='<defs><marker id="ah" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#ffe14a"/></marker></defs><rect width="800" height="480" fill="#2f8f4e"/><g fill="none" stroke="#fff" stroke-width="3"><rect x="20" y="20" width="760" height="440"/><path d="M400 20V460M211 20V460M589 20V460" stroke-dasharray="none"/><path d="M20 103A122 122 0 0 1 142 225L142 255A122 122 0 0 1 20 377M780 103A122 122 0 0 0 658 225L658 255A122 122 0 0 0 780 377"/><circle cx="400" cy="240" r="4" fill="#fff"/></g><rect x="6" y="225" width="14" height="30" fill="#fff" opacity=".85"/><rect x="780" y="225" width="14" height="30" fill="#fff" opacity=".85"/>';
+function build(){var h=FIELD+'<g id="ar"></g><g id="tk">';
+['A','B'].forEach(function(t){for(var i=0;i<S.n;i++){var k=i===0;h+='<g data-t="'+t+'" data-i="'+i+'" style="cursor:grab"><circle class="ring" r="25" fill="none" stroke="#ffe14a" stroke-width="3" stroke-dasharray="5 4" visibility="hidden"/><circle r="18" fill="'+(k?'#ffc94a':TC[t])+'" stroke="'+(k?TC[t]:'#fff')+'" stroke-width="'+(k?5:3)+'"/><text y="6" text-anchor="middle" font-size="16" font-weight="800" fill="'+(k?'#1d2b45':'#fff')+'" pointer-events="none">'+(k?'K':i)+'</text><text class="nm" y="40" text-anchor="middle" font-size="14" font-weight="800" fill="#fff" stroke="#14301f" stroke-width="3" paint-order="stroke" pointer-events="none"></text></g>'}});
+h+='</g><g id="ball" pointer-events="none"><circle r="8" fill="#fff" stroke="#111" stroke-width="2"/><circle r="3" fill="#111"/></g>';
+svg.innerHTML=h;arG=svg.querySelector('#ar');ballEl=svg.querySelector('#ball');
+['A','B'].forEach(function(t){tk[t]=[];for(var i=0;i<S.n;i++){var g=svg.querySelector('[data-t="'+t+'"][data-i="'+i+'"]');g.querySelector('.nm').textContent=S.names[t][i];tk[t].push(g)}});
+nameUI();stepsUI();show();chips($('#h-n'),[{l:'6 spelers',v:6},{l:'11 spelers',v:11}],function(){return S.n},setN)}
+function setAll(p,b){['A','B'].forEach(function(t){for(var i=0;i<S.n;i++)tk[t][i].setAttribute('transform','translate('+p[t][i][0]+','+p[t][i][1]+')')});ballEl.setAttribute('transform','translate('+b[0]+','+b[1]+')')}
+function arrows(a,extra){var h=a.map(function(l){return'<line x1="'+l[0]+'" y1="'+l[1]+'" x2="'+l[2]+'" y2="'+l[3]+'" stroke="#ffe14a" stroke-width="4" stroke-linecap="round" marker-end="url(#ah)"/>'}).join('');if(extra)h+='<line x1="'+extra[0]+'" y1="'+extra[1]+'" x2="'+extra[2]+'" y2="'+extra[3]+'" stroke="#ffe14a" stroke-width="4" stroke-linecap="round" opacity=".6"/>';arG.innerHTML=h}
+function rings(){['A','B'].forEach(function(t){tk[t].forEach(function(g,i){g.querySelector('.ring').setAttribute('visibility',sel&&sel.t===t&&sel.i===i?'visible':'hidden')})})}
+function show(){var f=fr();setAll(f.p,bp(f));arrows(f.a);rings()}
+function setN(n){if(n===S.n)return;if(S.frames.length>1&&!confirm('Bij een andere opstelling beginnen de stappen opnieuw. Doorgaan?')){chips($('#h-n'),[{l:'6 spelers',v:6},{l:'11 spelers',v:11}],function(){return S.n},setN);return}
+stop();S.n=n;S.frames=[start(n)];S.cur=0;sel=null;build();save()}
+function pt(e){var m=svg.getScreenCTM();if(!m)return{x:0,y:0};var p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(m.inverse())}
+svg.addEventListener('pointerdown',function(e){if(playing)return;var p=pt(e),g=e.target.closest('[data-t]');
+if(drawMode){arrow=[p.x,p.y,p.x,p.y];svg.setPointerCapture(e.pointerId);return}
+if(!g)return;var t=g.dataset.t,i=+g.dataset.i,pos=fr().p[t][i];drag={t:t,i:i,dx:pos[0]-p.x,dy:pos[1]-p.y};svg.setPointerCapture(e.pointerId);select(t,i)});
+svg.addEventListener('pointermove',function(e){var p=pt(e);
+if(arrow){arrow[2]=p.x;arrow[3]=p.y;arrows(fr().a,arrow);return}
+if(!drag)return;fr().p[drag.t][drag.i]=[Math.max(12,Math.min(W-12,p.x+drag.dx)),Math.max(12,Math.min(H-12,p.y+drag.dy))];var f=fr();setAll(f.p,bp(f))});
+function up(){if(arrow){if(Math.hypot(arrow[2]-arrow[0],arrow[3]-arrow[1])>18)fr().a.push(arrow.map(Math.round));arrow=null;arrows(fr().a);save()}
+if(drag){drag=null;save()}}
+svg.addEventListener('pointerup',up);svg.addEventListener('pointercancel',up);
+function nm(t,i){return S.names[t][i]||''}
+function select(t,i){sel={t:t,i:i};rings();$('#h-sel').textContent='Gekozen: '+TN[t]+' '+(i?'speler '+i:'keeper')+(nm(t,i)?' ('+nm(t,i)+')':'')}
+$('#h-ball').onclick=function(){if(!sel||playing){$('#h-sel').textContent='Tik eerst een speler aan.';return}fr().b={t:sel.t,i:sel.i};show();save()};
+$('#h-draw').onclick=function(){drawMode=!drawMode;this.setAttribute('aria-pressed',drawMode?'true':'false');svg.style.cursor=drawMode?'crosshair':''};
+$('#h-noar').onclick=function(){fr().a=[];show();save()};
+function nameUI(){var h='';['A','B'].forEach(function(t){h+='<div><b>'+TN[t]+'</b>';for(var i=0;i<S.n;i++)h+='<label><b>'+(i?i:'K')+'</b><input type="text" data-t="'+t+'" data-i="'+i+'" value="" placeholder="'+(i?'Speler '+i:'Keeper')+'" aria-label="'+TN[t]+' '+(i?'speler '+i:'keeper')+'"></label>';h+='</div>'});
+$('#h-nm').innerHTML=h;$('#h-nm').querySelectorAll('input').forEach(function(inp){inp.value=S.names[inp.dataset.t][+inp.dataset.i]})}
+$('#h-nm').addEventListener('input',function(e){var t=e.target.dataset.t,i=+e.target.dataset.i;S.names[t][i]=e.target.value;tk[t][i].querySelector('.nm').textContent=e.target.value;save()});
+function stepsUI(){chips($('#h-steps'),S.frames.map(function(f,i){return{l:'Stap '+(i+1),v:i}}),function(){return S.cur},function(v){stop();S.cur=v;show();save()})}
+$('#h-new').onclick=function(){stop();var c=JSON.parse(JSON.stringify(fr()));c.a=[];S.frames.splice(S.cur+1,0,c);S.cur++;stepsUI();show();save()};
+$('#h-del').onclick=function(){stop();if(S.frames.length<2)return;S.frames.splice(S.cur,1);S.cur=Math.min(S.cur,S.frames.length-1);stepsUI();show();save()};
+chips($('#h-spd'),[{l:'0,5×',v:.5},{l:'1×',v:1},{l:'2×',v:2},{l:'3×',v:3}],function(){return speed},function(v){speed=v});
+function mix(a,b,e){var p={A:[],B:[]};['A','B'].forEach(function(t){a.p[t].forEach(function(q,i){var r=b.p[t][i];p[t].push([q[0]+(r[0]-q[0])*e,q[1]+(r[1]-q[1])*e])})});var x=bp(a),y=bp(b);setAll(p,[x[0]+(y[0]-x[0])*e,x[1]+(y[1]-x[1])*e])}
+function stop(){if(!playing)return;playing=false;cancelAnimationFrame(raf);$('#h-play').textContent='▶️ Afspelen';stepsUI();show()}
+$('#h-play').onclick=function(){if(playing){stop();return}if(S.frames.length<2){$('#h-sel').textContent='Maak eerst minstens twee stappen.';return}
+playing=true;sel=null;rings();$('#h-play').textContent='⏹️ Stop';if(S.cur>=S.frames.length-1)S.cur=0;var pos=S.cur,last=performance.now(),seg=-1;
+function tick(now){pos+=(now-last)/(1400/speed);last=now;var k=Math.floor(pos);
+if(k>=S.frames.length-1){S.cur=S.frames.length-1;playing=false;$('#h-play').textContent='▶️ Afspelen';stepsUI();show();return}
+if(k!==seg){seg=k;S.cur=k;stepsUI();arrows(S.frames[k].a)}
+var u=pos-k;mix(S.frames[k],S.frames[k+1],u*u*(3-2*u));raf=requestAnimationFrame(tick)}
+raf=requestAnimationFrame(tick)};
+function lst(){try{return JSON.parse(localStorage.getItem(SK)||'[]')}catch(e){return[]}}
+function putl(a){try{localStorage.setItem(SK,JSON.stringify(a))}catch(e){}}
+function listUI(){var a=lst(),box=$('#h-list');box.innerHTML='';if(!a.length){box.innerHTML='<p style="margin:8px 0 0">Nog geen opgeslagen tactieken.</p>';return}
+a.forEach(function(it,i){var r=document.createElement('div');r.className='srow';var s=document.createElement('span');s.textContent=it.name+' ('+it.d.frames.length+' stappen)';
+var o=document.createElement('button');o.className='chip';o.textContent='Openen';o.onclick=function(){stop();S=JSON.parse(JSON.stringify(it.d));S.cur=0;sel=null;build();save()};
+var d=document.createElement('button');d.className='chip';d.textContent='🗑️';d.setAttribute('aria-label',it.name+' verwijderen');d.onclick=function(){var l=lst();l.splice(i,1);putl(l);listUI()};
+r.appendChild(s);r.appendChild(o);r.appendChild(d);box.appendChild(r)})}
+$('#h-save').onclick=function(){var l=lst(),n=$('#h-sname').value.trim()||'Tactiek '+(l.length+1),d=JSON.parse(JSON.stringify(S)),j=-1;l.forEach(function(x,i){if(x.name===n)j=i});if(j>=0)l[j]={name:n,d:d};else l.push({name:n,d:d});putl(l);$('#h-sname').value='';listUI()};
+$('#h-reset').onclick=function(){if(!confirm('Alles opnieuw beginnen? Namen en stappen worden gewist.'))return;stop();S=fresh(S.n);sel=null;build();save()};
+build();listUI();
+</script>
+</body>
+</html>

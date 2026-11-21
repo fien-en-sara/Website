@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Galgje</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+<style>.keys{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:12px 0}
+.keys button{min-height:46px;font-size:22px;font-weight:800;border-radius:12px;border:2px solid var(--line);background:var(--card)}
+.keys button:disabled{opacity:.9}.keys .g{background:var(--ok);border-color:var(--mint)}.keys .x{background:var(--bad);border-color:var(--coral)}
+#g-word{font-size:38px;font-weight:800;text-align:center;letter-spacing:6px;min-height:56px}
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="../index.html">← Spelletjes</a>
+<h2>Galgje 🔤</h2>
+<div class="chips" id="g-th"></div>
+<svg id="g-svg" viewBox="0 0 200 220" style="width:100%;max-width:220px;display:block;margin:0 auto" role="img" aria-label="Galgje tekening"></svg>
+<div id="g-word" aria-live="polite"></div>
+<p id="g-msg" style="text-align:center;font-size:24px;font-weight:800;min-height:34px;margin:0"></p>
+<div class="keys" id="g-keys"></div>
+<div class="row" style="justify-content:center"><button class="btn" id="g-new">Nieuw woord 🔄</button></div>
+</main>
+<script>
+var $=function(s){return document.querySelector(s)},R=function(n){return Math.floor(Math.random()*n)};
+function shuffle(a){return a.sort(function(){return Math.random()-.5})}
+function chips(box,items,cur,set){box.innerHTML='';items.forEach(function(it){var b=document.createElement('button');b.className='chip';b.textContent=it.l;b.setAttribute('aria-pressed',it.v===cur()?'true':'false');b.onclick=function(){set(it.v);chips(box,items,cur,set)};box.appendChild(b)})}
+var TH={'🐴 Paarden':'PAARD PONY MANEGE HOEF ZADEL TEUGEL MERRIE HENGST VEULEN SPRINGEN GALOP STAL HOOI HOEFIJZER DRESSUUR RUITER',
+'🐶 Honden':'HOND PUP BLAFFEN RIEM STAART SNUIT APPORTEREN LABRADOR HERDER POOT VACHT WANDELEN TRAINEN ZITTEN HONDENHOK',
+'🏑 Hockey':'HOCKEY STICK BAL DOEL KEEPER SCOREN STRAFBAL SCHEIDSRECHTER SHIRT BEKER VELD TRAINING KUNSTGRAS AANVAL VERDEDIGER'};
+TH['🎲 Alles']=Object.keys(TH).map(function(k){return TH[k]}).join(' ');
+var theme='🐴 Paarden',word='',got={},bad=0,over=true,MAX=8,last='';
+var parts=['<path d="M20 205H120"/>','<path d="M70 205V20"/>','<path d="M70 20H150"/>','<path d="M150 20V50"/>','<circle cx="150" cy="66" r="16"/>','<path d="M150 82V135"/>','<path d="M150 95L125 118M150 95L175 118"/>','<path d="M150 135L130 175M150 135L170 175"/>'];
+chips($('#g-th'),Object.keys(TH).map(function(k){return{l:k,v:k}}),function(){return theme},function(v){theme=v;fresh()});
+var kb=$('#g-keys'),btn={};'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(function(L){var b=document.createElement('button');b.textContent=L;b.onclick=function(){guess(L)};kb.appendChild(b);btn[L]=b});
+function draw(){$('#g-svg').innerHTML='<g stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none">'+parts.slice(0,bad).join('')+'</g>';
+$('#g-word').textContent=word.split('').map(function(c){return got[c]||over&&bad>=MAX?c:'_'}).join(' ')}
+function fresh(){var pool=TH[theme].split(' ').filter(function(w){return w!==last});word=pool[R(pool.length)];last=word;got={};bad=0;over=false;$('#g-msg').textContent='Welke letter zit erin?';
+for(var L in btn){btn[L].disabled=false;btn[L].className=''}draw()}
+function guess(L){if(over||btn[L].disabled)return;btn[L].disabled=true;
+if(word.indexOf(L)>=0){got[L]=1;btn[L].className='g'}else{bad++;btn[L].className='x'}
+var win=word.split('').every(function(c){return got[c]});
+if(win){over=true;$('#g-msg').textContent='Goed gedaan! 🎉'}else if(bad>=MAX){over=true;$('#g-msg').textContent='Helaas! Het woord was '+word+'.'}
+else $('#g-msg').textContent=bad?'Nog '+(MAX-bad)+' fout'+(MAX-bad===1?'':'en')+' te gaan.':'Welke letter zit erin?';draw()}
+addEventListener('keydown',function(e){if(e.ctrlKey||e.metaKey||e.altKey)return;var L=e.key.toUpperCase();if(btn[L]&&e.key.length===1)guess(L)});
+$('#g-new').onclick=fresh;fresh();
+</script>
+</body>
+</html>

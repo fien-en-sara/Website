@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Memory</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+<style>.mem{display:grid;gap:8px;margin:12px auto;max-width:460px}
+.mc{aspect-ratio:1;font-size:clamp(26px,9vw,48px);border-radius:16px;border:3px solid var(--ink);background:var(--vio);color:#fff;font-weight:800;padding:0}
+.mc.up{background:var(--card)}.mc.ok{background:var(--ok);border-color:var(--mint)}
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="../index.html">← Spelletjes</a>
+<h2>Memory 🃏</h2>
+<div id="m-setup" class="card">
+<div class="cat">Thema</div><div class="chips" id="m-th"></div>
+<div class="cat">Hoeveel paren?</div><div class="chips" id="m-n"></div>
+<button class="btn" id="m-go">Start 🃏</button>
+</div>
+<div id="m-game" hidden>
+<div class="row" style="justify-content:space-between"><b id="m-moves">Beurten: 0</b><b id="m-time">0:00</b></div>
+<div class="mem" id="m-grid"></div>
+<div id="m-win" class="card" hidden style="text-align:center"><div class="big">Alle paren gevonden! 🎉</div><p id="m-msg"></p><div class="row" style="justify-content:center"><button class="btn" id="m-again">Nog een keer 🔄</button><button class="btn alt" id="m-new">Andere instellingen</button></div></div>
+<div class="row"><button class="btn" id="m-stop">Stoppen</button></div>
+</div>
+</main>
+<script>
+var $=function(s){return document.querySelector(s)},R=function(n){return Math.floor(Math.random()*n)};
+function shuffle(a){return a.sort(function(){return Math.random()-.5})}
+function chips(box,items,cur,set){box.innerHTML='';items.forEach(function(it){var b=document.createElement('button');b.className='chip';b.textContent=it.l;b.setAttribute('aria-pressed',it.v===cur()?'true':'false');b.onclick=function(){set(it.v);chips(box,items,cur,set)};box.appendChild(b)})}
+var TH={'🐴 Paarden':'🐴 🏇 🥕 🍎 🌾 🎠 🐎 🦄 🏆 🎀 ⭐ 🏅 🌈 🌻','🐶 Honden':'🐶 🐕 🦴 🐩 🦮 🎾 🐾 🏠 🌭 🥎 🛁 🚶 🐕‍🦺 ⭐','🏑 Hockey':'🏑 🥅 🏆 🥇 🧤 ⏱️ 📣 👟 🎽 🛡️ 🥈 🏅 🚩 🔔'};
+var theme='🐴 Paarden',pairs=8,first=null,lock=false,moves=0,done=0,tick,t0,cards=[];
+chips($('#m-th'),Object.keys(TH).map(function(k){return{l:k,v:k}}),function(){return theme},function(v){theme=v});
+chips($('#m-n'),[6,8,10,12].map(function(n){return{l:n+' paren',v:n}}),function(){return pairs},function(v){pairs=v});
+function fmt(){var s=Math.floor((Date.now()-t0)/1000);return Math.floor(s/60)+':'+('0'+s%60).slice(-2)}
+function build(){var e=shuffle(TH[theme].split(' ')).slice(0,pairs),d=shuffle(e.concat(e));first=null;lock=false;moves=0;done=0;
+$('#m-setup').hidden=true;$('#m-game').hidden=false;$('#m-win').hidden=true;$('#m-moves').textContent='Beurten: 0';
+var g=$('#m-grid'),cols=d.length<=16?4:d.length===20?5:4;if(d.length===24)cols=6;g.style.gridTemplateColumns='repeat('+cols+',1fr)';g.innerHTML='';
+cards=d.map(function(x){var b=document.createElement('button');b.className='mc';b.textContent='❓';b.setAttribute('aria-label','kaart');b.onclick=function(){flip(b,x)};g.appendChild(b);return b});
+clearInterval(tick);t0=Date.now();$('#m-time').textContent='0:00';tick=setInterval(function(){$('#m-time').textContent=fmt()},1000)}
+function flip(b,x){if(lock||b.classList.contains('up')||b.classList.contains('ok'))return;b.classList.add('up');b.textContent=x;b.dataset.e=x;
+if(!first){first=b;return}
+moves++;$('#m-moves').textContent='Beurten: '+moves;var a=first;first=null;
+if(a.dataset.e===x){a.className=b.className='mc ok';done++;if(done===pairs){clearInterval(tick);$('#m-msg').textContent='Je deed er '+fmt()+' over, met '+moves+' beurten.';$('#m-win').hidden=false}}
+else{lock=true;setTimeout(function(){[a,b].forEach(function(c){c.className='mc';c.textContent='❓'});lock=false},900)}}
+function stop(){clearInterval(tick);$('#m-game').hidden=true;$('#m-setup').hidden=false}
+$('#m-go').onclick=build;$('#m-again').onclick=build;$('#m-stop').onclick=stop;$('#m-new').onclick=stop;
+</script>
+</body>
+</html>

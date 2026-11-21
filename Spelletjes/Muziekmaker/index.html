@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Muziekmaker</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+<style>.pk{flex:1;min-height:170px;border-radius:0 0 14px 14px;border:3px solid var(--ink);font-size:20px;font-weight:800;color:#1d2b45;padding:0;display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px;transition:transform .05s}
+.pk.on{transform:translateY(5px);filter:brightness(1.25)}
+.sq{display:grid;grid-template-columns:62px repeat(8,1fr);gap:5px;align-items:center;margin:10px 0}
+.sq button{min-height:42px;border-radius:10px;border:2px solid var(--line);background:var(--card);padding:0}
+.sq button[aria-pressed=true]{background:var(--vio);border-color:var(--ink)}
+.sq .cur{outline:3px solid var(--sun)}
+.sq span{font-size:15px;font-weight:700}
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="../index.html">← Spelletjes</a>
+<h2>Muziekmaker 🎹</h2>
+<div class="chips" id="u-inst"></div>
+<div class="row" style="gap:4px;flex-wrap:nowrap" id="u-keys"></div>
+<p style="font-size:15px;margin:8px 0;opacity:.8">Tik op de toetsen, of gebruik de letters A S D F G H J K op het toetsenbord.</p>
+<div class="row"><button class="btn" id="u-rec">🔴 Opnemen</button><button class="btn alt" id="u-play">▶️ Afspelen</button></div>
+<p id="u-st" style="min-height:26px;margin:8px 0"></p>
+<h2 style="margin-top:14px">Drumcomputer 🥁</h2>
+<div class="sq" id="u-seq"></div>
+<div class="row"><button class="btn" id="u-go">▶️ Start</button><button class="btn alt" id="u-ex">✨ Voorbeeld</button><button class="btn" id="u-clr" style="background:var(--mint)">Wissen</button></div>
+<label class="row" style="margin-top:12px">Tempo <input type="range" id="u-bpm" min="60" max="160" value="100" style="flex:1"></label>
+</main>
+<script>
+var $=function(s){return document.querySelector(s)},R=function(n){return Math.floor(Math.random()*n)};
+function shuffle(a){return a.sort(function(){return Math.random()-.5})}
+function chips(box,items,cur,set){box.innerHTML='';items.forEach(function(it){var b=document.createElement('button');b.className='chip';b.textContent=it.l;b.setAttribute('aria-pressed',it.v===cur()?'true':'false');b.onclick=function(){set(it.v);chips(box,items,cur,set)};box.appendChild(b)})}
+var AC=null,inst='piano',W={piano:'triangle',orgel:'square',fluit:'sine'};
+function ac(){if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();return AC}
+chips($('#u-inst'),[{l:'🎹 Piano',v:'piano'},{l:'⛪ Orgel',v:'orgel'},{l:'🪈 Fluit',v:'fluit'}],function(){return inst},function(v){inst=v});
+var F=[261.63,293.66,329.63,349.23,392,440,493.88,523.25],N=['C','D','E','F','G','A','B','C'],K='asdfghjk',CL=['#ff6b57','#ff9f1c','#ffc94a','#8fd14f','#2fb98f','#4aa3ff','#6f62f5','#f58ac4'];
+function tone(f){var c=ac(),o=c.createOscillator(),g=c.createGain(),t=c.currentTime;o.type=W[inst];o.frequency.value=f;
+g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(inst==='orgel'?.1:.3,t+.01);g.gain.exponentialRampToValueAtTime(.001,t+(inst==='piano'?1.1:.7));o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+1.2)}
+var rec=false,song=[],t0=0,keys=[],kb=$('#u-keys');
+F.forEach(function(f,i){var b=document.createElement('button');b.className='pk';b.style.background=CL[i];b.textContent=N[i];b.onpointerdown=function(e){e.preventDefault();hit(i)};kb.appendChild(b);keys.push(b)});
+function hit(i){tone(F[i]);keys[i].classList.add('on');setTimeout(function(){keys[i].classList.remove('on')},150);if(rec)song.push({t:Date.now()-t0,i:i})}
+addEventListener('keydown',function(e){if(e.repeat||e.ctrlKey||e.metaKey)return;var i=K.indexOf(e.key.toLowerCase());if(i>=0&&e.key.length===1)hit(i)});
+$('#u-rec').onclick=function(){if(rec){rec=false;$('#u-rec').textContent='🔴 Opnemen';$('#u-st').textContent=song.length?'Opgenomen: '+song.length+' noten.':'';return}
+rec=true;song=[];t0=Date.now();$('#u-rec').textContent='⏹️ Stoppen';$('#u-st').textContent='Opname bezig... speel je liedje!'};
+$('#u-play').onclick=function(){if(rec)$('#u-rec').click();if(!song.length){$('#u-st').textContent='Neem eerst iets op.';return}$('#u-st').textContent='Afspelen...';
+song.forEach(function(n){setTimeout(function(){hit(n.i)},n.t-song[0].t)});setTimeout(function(){$('#u-st').textContent=''},song[song.length-1].t-song[0].t+800)};
+/* drums */
+var NB=null;function noise(){var c=ac();if(!NB){NB=c.createBuffer(1,c.sampleRate*.5,c.sampleRate);var d=NB.getChannelData(0);for(var i=0;i<d.length;i++)d[i]=Math.random()*2-1}var s=c.createBufferSource();s.buffer=NB;return s}
+function drum(k){var c=ac(),t=c.currentTime,g=c.createGain();g.connect(c.destination);
+if(k===0){var o=c.createOscillator();o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(40,t+.2);g.gain.setValueAtTime(.9,t);g.gain.exponentialRampToValueAtTime(.001,t+.3);o.connect(g);o.start(t);o.stop(t+.35);return}
+var s=noise(),f=c.createBiquadFilter();s.connect(f);f.connect(g);
+if(k===1){f.type='highpass';f.frequency.value=1200;g.gain.setValueAtTime(.5,t);g.gain.exponentialRampToValueAtTime(.001,t+.18)}
+else if(k===2){f.type='highpass';f.frequency.value=7000;g.gain.setValueAtTime(.35,t);g.gain.exponentialRampToValueAtTime(.001,t+.06)}
+else{f.type='bandpass';f.frequency.value=1500;g.gain.setValueAtTime(.7,t);g.gain.exponentialRampToValueAtTime(.001,t+.12)}
+s.start(t);s.stop(t+.3)}
+var rows=['Bas','Snare','Hihat','Klap'],seq=[[],[],[],[]],cells=[],sb=$('#u-seq'),step=-1,tick=null;
+rows.forEach(function(n,r){var l=document.createElement('span');l.textContent=n;sb.appendChild(l);cells.push([]);for(var s=0;s<8;s++){seq[r][s]=0;var b=document.createElement('button');b.setAttribute('aria-pressed','false');b.setAttribute('aria-label',n+' stap '+(s+1));(function(r,s,b){b.onclick=function(){seq[r][s]=seq[r][s]?0:1;b.setAttribute('aria-pressed',seq[r][s]?'true':'false');if(seq[r][s])drum(r)}})(r,s,b);sb.appendChild(b);cells[r].push(b)}});
+function redraw(){for(var r=0;r<4;r++)for(var s=0;s<8;s++)cells[r][s].setAttribute('aria-pressed',seq[r][s]?'true':'false')}
+function run(){clearInterval(tick);tick=setInterval(function(){if(step>=0)for(var r=0;r<4;r++)cells[r][step].classList.remove('cur');step=(step+1)%8;for(r=0;r<4;r++){cells[r][step].classList.add('cur');if(seq[r][step])drum(r)}},60000/(+$('#u-bpm').value)/2)}
+$('#u-go').onclick=function(){if(tick){clearInterval(tick);tick=null;if(step>=0)for(var r=0;r<4;r++)cells[r][step].classList.remove('cur');step=-1;$('#u-go').textContent='▶️ Start'}else{ac();run();$('#u-go').textContent='⏹️ Stop'}};
+$('#u-bpm').oninput=function(){if(tick)run()};
+$('#u-ex').onclick=function(){seq=[[1,0,0,0,1,0,1,0],[0,0,1,0,0,0,1,0],[1,1,1,1,1,1,1,1],[0,0,0,0,0,0,0,1]];redraw()};
+$('#u-clr').onclick=function(){seq=[[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0]];redraw()};
+</script>
+</body>
+</html>

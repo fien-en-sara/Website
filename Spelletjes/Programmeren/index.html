@@ -43,8 +43,8 @@ var LV=[
 {r:['......','......','S.##.G','......','......','......'],d:1,lim:99,t:'Loop om de muur heen.'},
 {r:['S.#....','.##.##.','...#...','.#...#.','.#.###.','.#...#.','...#..G'],d:2,lim:99,t:'Een doolhof! De robot kijkt nu naar beneden. Het kan met minder blokken als je Herhaal slim gebruikt.'}];
 var DX=[0,1,0,-1],DY=[-1,0,1,0],AR=['▲','▶','▼','◀'],NAME={F:'⬆️ Vooruit',L:'↰ Links',R:'↱ Rechts'};
-var lv=0,g,gw,gh,st,goal,prog=[],into=-1,busy=false,tm,top=0;
-try{top=+localStorage.getItem('robot-level')||0}catch(e){}
+var lv=0,g,gw,gh,st,goal,prog=[],into=-1,busy=false,tm,best=0;
+try{best=+localStorage.getItem('robot-level')||0}catch(e){}
 function lvChips(){chips($('#g-lv'),LV.map(function(x,i){return{l:'Level '+(i+1),v:i}}),function(){return lv},function(v){load(v)})}
 function load(n){clearTimeout(tm);busy=false;lv=n;var L=LV[n];g=L.r.map(function(r){return r.split('')});gh=g.length;gw=g[0].length;
 for(var y=0;y<gh;y++)for(var x=0;x<gw;x++){if(g[y][x]==='S'){st={x:x,y:y,d:L.d};g[y][x]='.'}if(g[y][x]==='G'){goal={x:x,y:y};g[y][x]='.'}}
@@ -71,10 +71,10 @@ function fail(m){$('#g-msg').textContent=m;draw(b,true);tm=setTimeout(function()
 function step(){if(k>=out.length){if(b.x===goal.x&&b.y===goal.y)return win();return fail('Net niet! De robot staat nog niet op de vlag.')}
 var c=out[k++];if(c==='L')b.d=(b.d+3)%4;else if(c==='R')b.d=(b.d+1)%4;else{var nx=b.x+DX[b.d],ny=b.y+DY[b.d];if(nx<0||ny<0||nx>=gw||ny>=gh||g[ny][nx]==='#')return fail('Au! Daar kun je niet heen.');b.x=nx;b.y=ny}
 draw(b);if(b.x===goal.x&&b.y===goal.y)return win();tm=setTimeout(step,320)}
-function win(){busy=false;$('#g-msg').textContent='🎉 Gelukt met '+cnt()+' blokken!';if(lv<LV.length-1)$('#g-next').hidden=false;else $('#g-msg').textContent+=' Je hebt alle levels gehaald!';try{if(lv+1>top)localStorage.setItem('robot-level',lv+1)}catch(e){}}
+function win(){busy=false;$('#g-msg').textContent='🎉 Gelukt met '+cnt()+' blokken!';if(lv<LV.length-1)$('#g-next').hidden=false;else $('#g-msg').textContent+=' Je hebt alle levels gehaald!';try{if(lv+1>best)localStorage.setItem('robot-level',lv+1)}catch(e){}}
 tm=setTimeout(step,300)}
 $('#g-run').onclick=run;$('#g-next').onclick=function(){load(lv+1)};
-load(Math.min(top,LV.length-1));
+load(Math.min(best,LV.length-1));
 </script>
 </body>
 </html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Engelse woordjes</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+<style>.inp{font:inherit;font-size:28px;font-weight:700;text-align:center;width:100%;padding:10px;border-radius:16px;border:3px solid var(--line);background:var(--card);color:var(--ink);margin:8px 0 12px}
+textarea.inp{font-size:18px;text-align:left;min-height:140px;font-weight:500}
+.fc{width:100%;min-height:150px;border-radius:22px;border:3px solid var(--ink);background:var(--card);font-size:38px;font-weight:800;padding:16px;box-shadow:0 5px 0 var(--ink)}
+.fc.back{background:var(--sun);color:#1d2b45}
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="../index.html">← School</a>
+<h2>Engelse woordjes 🇬🇧</h2>
+<div id="e-setup" class="card">
+<div class="cat">Thema</div><div class="chips" id="e-th"></div>
+<textarea class="inp" id="e-own" hidden aria-label="Eigen woordenlijst" placeholder="Eén woordje per regel, bijvoorbeeld:&#10;house = huis&#10;to travel = reizen"></textarea>
+<div class="cat">Hoe wil je oefenen?</div><div class="chips" id="e-mode"></div>
+<p id="e-warn" style="color:var(--coral);min-height:26px;margin:0 0 6px"></p>
+<button class="btn" id="e-go">Start 🚀</button>
+</div>
+<div id="e-game" class="card" hidden>
+<div class="bar"><div id="e-bar"></div></div>
+<p id="e-hint" style="text-align:center;margin:0 0 8px"></p>
+<div id="e-area"></div>
+<p id="e-fb" style="text-align:center;font-size:24px;font-weight:800;min-height:34px;margin:8px 0 0"></p>
+</div>
+<div id="e-end" class="card" hidden>
+<h2>Klaar! 🎉</h2><div class="big" id="e-score"></div><p id="e-wrong" style="text-align:center"></p>
+<div class="row" style="justify-content:center"><button class="btn" id="e-redo" hidden>Foute woorden opnieuw</button><button class="btn alt" id="e-again">Nog een keer</button><button class="btn" id="e-new" style="background:var(--mint)">Andere lijst</button></div>
+</div>
+</main>
+<script>
+var $=function(s){return document.querySelector(s)},R=function(n){return Math.floor(Math.random()*n)};
+function shuffle(a){return a.sort(function(){return Math.random()-.5})}
+function chips(box,items,cur,set){box.innerHTML='';items.forEach(function(it){var b=document.createElement('button');b.className='chip';b.textContent=it.l;b.setAttribute('aria-pressed',it.v===cur()?'true':'false');b.onclick=function(){set(it.v);chips(box,items,cur,set)};box.appendChild(b)})}
+var TH={
+'🏠 Thuis':'house=huis;kitchen=keuken;bedroom=slaapkamer;bathroom=badkamer;garden=tuin;window=raam;door=deur;stairs=trap;roof=dak;floor=vloer;table=tafel;chair=stoel;lamp=lamp;wall=muur;key=sleutel;neighbour=buurman/buurvrouw',
+'🏫 School':'teacher=leraar/lerares;pupil=leerling;lesson=les;homework=huiswerk;pencil=potlood;ruler=liniaal;rubber=gum;desk=bureau;classroom=klaslokaal;break=pauze;test=toets;answer=antwoord;question=vraag;to read=lezen;to write=schrijven;to learn=leren',
+'🍽️ Eten en drinken':'breakfast=ontbijt;dinner=avondeten;cheese=kaas;bread=brood;butter=boter;vegetables=groente;chicken=kip;rice=rijst;milk=melk;sugar=suiker;cake=taart;chips=friet;soup=soep;hungry=hongerig;thirsty=dorstig;delicious=heerlijk',
+'🏑 Sport':'match=wedstrijd;team=team;goalkeeper=keeper;ball=bal;pitch=veld;to score=scoren;to win=winnen;to lose=verliezen;to train=trainen;referee=scheidsrechter;cup=beker;fast=snel;slow=langzaam;to jump=springen;to run=rennen;supporter=supporter',
+'✈️ Reizen':'holiday=vakantie;suitcase=koffer;ticket=kaartje;airport=vliegveld;passport=paspoort;beach=strand;map=kaart;tourist=toerist;journey=reis;luggage=bagage;island=eiland;mountain=berg;sea=zee;abroad=buitenland;to book=boeken;to arrive=aankomen',
+'💬 Veelgebruikt':'always=altijd;never=nooit;sometimes=soms;because=omdat;but=maar;between=tussen;behind=achter;beautiful=mooi;difficult=moeilijk;easy=makkelijk;happy=blij;tired=moe;early=vroeg;late=laat;together=samen;almost=bijna'};
+var OWN='✍️ Eigen lijst',KEY='engels-lijst',theme=Object.keys(TH)[0],mode='flash',pool=[],list=[],i=0,wrong=[],phase='ask',flipped=false,timer;
+var own=$('#e-own');try{own.value=localStorage.getItem(KEY)||''}catch(e){}
+function parse(s){return s.split(/\n|;/).map(function(l){var p=l.split(/\s*[=\t]\s*/);return p.length>1&&p[0].trim()&&p[1].trim()?{en:p[0].trim(),nl:p[1].trim()}:null}).filter(Boolean)}
+chips($('#e-th'),Object.keys(TH).concat([OWN]).map(function(k){return{l:k,v:k}}),function(){return theme},function(v){theme=v;own.hidden=v!==OWN});
+chips($('#e-mode'),[{l:'🃏 Flashcards',v:'flash'},{l:'⌨️ Typen (NL → EN)',v:'type'},{l:'🔘 Meerkeuze (EN → NL)',v:'choice'}],function(){return mode},function(v){mode=v});
+function show(id){['e-setup','e-game','e-end'].forEach(function(x){$('#'+x).hidden=x!==id})}
+function say(w){if(!('speechSynthesis' in window))return;speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(w.replace(/^to /,''));u.lang='en-GB';u.rate=.85;speechSynthesis.speak(u)}
+function first(s){return s.split('/')[0]}
+function begin(words){list=shuffle(words.slice()).slice(0,words.length>10&&!wrong.redo?10:words.length);i=0;wrong=[];show('e-game');next()}
+function next(){clearTimeout(timer);if(i>=list.length)return end();var w=list[i],a=$('#e-area');phase='ask';flipped=false;$('#e-bar').style.width=(i/list.length*100)+'%';$('#e-fb').textContent='';
+if(mode==='flash'){$('#e-hint').textContent='Weet je wat dit betekent? Tik op de kaart.';a.innerHTML='<button class="fc" id="e-card">'+esc(w.en)+'</button><div class="row" style="justify-content:center;margin-top:12px"><button class="btn alt" id="e-say">🔊 Uitspraak</button></div><div class="row" id="e-jn" style="justify-content:center;margin-top:12px" hidden><button class="btn" id="e-yes" style="background:var(--mint)">✓ Ik wist het</button><button class="btn" id="e-no">✗ Nog niet</button></div>';
+$('#e-card').onclick=function(){flipped=!flipped;this.textContent=flipped?w.nl:w.en;this.className='fc'+(flipped?' back':'');if(flipped)$('#e-jn').hidden=false};
+$('#e-say').onclick=function(){say(w.en)};$('#e-yes').onclick=function(){i++;next()};$('#e-no').onclick=function(){wrong.push(w);i++;next()}}
+else if(mode==='type'){$('#e-hint').textContent='Typ het Engelse woord.';a.innerHTML='<div class="big">'+esc(first(w.nl))+'</div><input class="inp" id="e-in" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Engels woord"><div class="row" style="justify-content:center"><button class="btn" id="e-ok">Controleer</button></div>';
+$('#e-ok').onclick=function(){if(phase==='fb'){i++;next();return}var v=$('#e-in').value.trim().toLowerCase();if(!v)return;var ok=w.en.toLowerCase().split('/').some(function(x){return x.trim()===v||x.trim().replace(/^to /,'')===v});
+$('#e-in').disabled=true;if(ok){$('#e-fb').textContent='✓ Goed!';$('#e-fb').style.color='var(--mint)';say(w.en);i++;timer=setTimeout(next,1000)}else{wrong.push(w);phase='fb';$('#e-fb').textContent='✗ Het is: '+w.en;$('#e-fb').style.color='var(--coral)';this.textContent='Verder'}};
+$('#e-in').addEventListener('keydown',function(e){if(e.key==='Enter')$('#e-ok').click()});$('#e-in').focus()}
+else{$('#e-hint').textContent='Wat betekent dit in het Nederlands?';var set={};set[first(w.nl)]=1;shuffle(pool.slice()).forEach(function(p){if(Object.keys(set).length<4)set[first(p.nl)]=1});
+a.innerHTML='<div class="big">'+esc(w.en)+'</div><div class="row" style="justify-content:center;margin-bottom:10px"><button class="btn alt" id="e-say">🔊 Uitspraak</button></div><div class="choices" id="e-ch"></div>';$('#e-say').onclick=function(){say(w.en)};say(w.en);
+shuffle(Object.keys(set)).forEach(function(c){var b=document.createElement('button');b.textContent=c;b.onclick=function(){if(phase==='fb')return;phase='fb';var ok=c===first(w.nl);b.style.background=ok?'var(--ok)':'var(--bad)';
+if(ok){$('#e-fb').textContent='✓ Goed!';$('#e-fb').style.color='var(--mint)'}else{wrong.push(w);$('#e-fb').textContent='✗ Het is: '+first(w.nl);$('#e-fb').style.color='var(--coral)'}i++;timer=setTimeout(next,ok?900:1800)};$('#e-ch').appendChild(b)})}}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+function end(){show('e-end');var n=list.length;$('#e-score').textContent=(n-wrong.length)+' van '+n+' goed';$('#e-wrong').textContent=wrong.length?'Oefen nog: '+wrong.map(function(w){return w.en+' = '+w.nl}).join(', '):'Alles goed! Wat een topper.';$('#e-redo').hidden=!wrong.length}
+$('#e-go').onclick=function(){var w;if(theme===OWN){w=parse(own.value);try{localStorage.setItem(KEY,own.value)}catch(e){}}else w=parse(TH[theme].replace(/=/g,' = '));
+if(w.length<4){$('#e-warn').textContent=theme===OWN?'Typ minstens 4 woordjes (Engels = Nederlands).':'Kies een lijst.';return}$('#e-warn').textContent='';pool=w;wrong=[];begin(w)};
+$('#e-redo').onclick=function(){var w=wrong.slice();wrong=[];wrong.redo=true;begin(w)};$('#e-again').onclick=function(){wrong=[];begin(pool)};$('#e-new').onclick=function(){show('e-setup')};
+</script>
+</body>
+</html>

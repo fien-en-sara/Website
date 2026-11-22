@@ -6,16 +6,23 @@
 <title>Robot programmeren</title>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../style.css">
-<style>.gr{display:grid;gap:3px;max-width:420px;margin:0 auto 12px;padding:6px;background:var(--ink);border-radius:14px}
-.ce{aspect-ratio:1;border-radius:8px;background:#cfe9d6;display:flex;align-items:center;justify-content:center;font-size:clamp(18px,6vw,30px);position:relative}
+<style>.gr{display:grid;gap:3px;max-width:440px;margin:0 auto 12px;padding:6px;background:var(--ink);border-radius:14px}
+.ce{aspect-ratio:1;border-radius:6px;background:#cfe9d6;display:flex;align-items:center;justify-content:center;font-size:clamp(14px,5vw,28px);position:relative}
 .ce.w{background:#394867}.ce.bot{background:#fff3c4}.ce.bad{background:#ffb3a8}
-.ce small{position:absolute;top:1px;right:3px;font-size:13px;color:#2f6fed}
+.ce small{position:absolute;top:0;right:2px;font-size:11px;color:#2f6fed}
 .prog{min-height:96px;border:3px dashed var(--line);border-radius:16px;padding:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:flex-start;margin-bottom:10px}
+.prog.act{border-style:solid;border-color:var(--ink)}
 .blk{background:var(--vio);color:#fff;border-radius:10px;padding:5px 10px;font-weight:700;font-size:17px}
-.rep{background:var(--sun);color:#1d2b45;border-radius:12px;padding:6px;display:flex;gap:5px;align-items:center;flex-wrap:wrap;border:3px solid transparent;cursor:pointer}
-.rep.act{border-color:var(--ink)}.rep .blk{background:#fff;color:#1d2b45}
-.rep button{border:2px solid var(--ink);background:#fff;border-radius:8px;font-weight:800;padding:0 8px;color:#1d2b45}
+.rep{background:var(--sun);color:#1d2b45;border-radius:12px;padding:6px;display:flex;gap:5px;align-items:center;flex-wrap:wrap;border:3px dashed #1d2b45;cursor:pointer}
+.rep.act{border-style:solid;background:#ffe08a}
+.rep .rep{background:#ffd75e}.rep .blk{background:#fff;color:#1d2b45}
+.rep button{border:2px solid var(--ink);background:#fff;border-radius:8px;font-weight:800;padding:0 8px;color:#1d2b45;font:inherit;font-size:16px}
+.sub{flex:1 1 100%;display:flex;flex-wrap:wrap;gap:5px;align-items:center;border:2px dashed #1d2b45;border-radius:8px;padding:4px;min-height:34px;background:rgba(255,255,255,.5)}
+.sub.act{border-style:solid;background:#fff}
 .pal button{font-size:17px;padding:9px 12px}
+textarea.code{width:100%;min-height:200px;font:500 16px/1.4 ui-monospace,Menlo,Consolas,monospace;padding:10px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink);tab-size:4;white-space:pre;margin-bottom:8px}
+pre{background:var(--card);border:2px solid var(--line);border-radius:12px;padding:10px;overflow-x:auto;font:500 15px/1.35 ui-monospace,Menlo,Consolas,monospace;margin:8px 0}
+details summary{font-weight:800;cursor:pointer;margin:6px 0}
 </style>
 </head>
 <body>
@@ -25,54 +32,135 @@
 <div class="chips" id="g-lv"></div>
 <p id="g-tip" style="margin:0 0 8px"></p>
 <div class="gr" id="g-grid" role="img" aria-label="Het speelveld"></div>
-<div class="row" style="justify-content:space-between"><b id="g-cnt"></b><span style="font-size:15px;opacity:.8">Tik op een herhaal-blok om er blokken in te zetten.</span></div>
-<div class="prog" id="g-prog" aria-label="Jouw programma"></div>
-<div class="row pal" style="margin-bottom:10px"><button class="btn alt" data-c="F">⬆️ Vooruit</button><button class="btn alt" data-c="L">↰ Links</button><button class="btn alt" data-c="R">↱ Rechts</button><button class="btn" data-c="rep" style="background:var(--sun);color:#1d2b45">🔁 Herhaal</button><button class="chip" data-c="del">⌫</button><button class="chip" data-c="clr">🗑️ Leeg</button></div>
-<div class="row"><button class="btn" id="g-run" style="background:var(--mint)">▶️ Start</button><button class="btn" id="g-next" hidden>Volgend level ➡️</button></div>
-<p id="g-msg" style="font-size:22px;font-weight:800;min-height:34px;margin:10px 0 0"></p>
+<div class="chips" id="g-tabs"></div>
+<div id="g-blk">
+<div class="row" style="justify-content:space-between"><b id="g-cnt"></b><span style="font-size:15px;opacity:.8">Tik op een blok met een stippellijn om er blokken in te zetten.</span></div>
+<div class="prog act" id="g-prog" aria-label="Jouw programma"></div>
+<div class="row pal" id="g-pal" style="margin-bottom:10px">
+<button class="btn alt" data-c="F">⬆️ Vooruit</button><button class="btn alt" data-c="L">↰ Links</button><button class="btn alt" data-c="R">↱ Rechts</button>
+<button class="btn" data-c="rep" style="background:var(--sun);color:#1d2b45">🔁 Herhaal</button><button class="btn" data-c="while" style="background:var(--sun);color:#1d2b45">🔄 Tot de vlag</button><button class="btn" data-c="if" style="background:var(--sun);color:#1d2b45">❓ Als…anders</button>
+<button class="chip" data-c="del">⌫</button><button class="chip" data-c="clr">🗑️ Leeg</button></div>
+<details open><summary>🐍 Zo ziet jouw programma eruit in Python</summary><pre id="g-code"></pre></details>
+</div>
+<div id="g-py" hidden>
+<textarea class="code" id="g-ta" spellcheck="false" autocapitalize="off" autocorrect="off" aria-label="Python code"></textarea>
+<div class="chips" id="g-snip"></div>
+<div class="row"><button class="chip" id="g-conv">↧ Mijn blokken omzetten</button><button class="chip" id="g-hint">💡 Hint</button></div>
+<p id="g-lines" style="font-size:15px;margin:6px 0 0;opacity:.8"></p>
+<pre id="g-hb" hidden></pre>
+</div>
+<div class="row" style="margin-top:12px"><button class="btn" id="g-run" style="background:var(--mint)">▶️ Start</button><button class="btn" id="g-next" hidden>Volgend level ➡️</button><div class="chips" id="g-spd" style="margin:0"></div></div>
+<p id="g-msg" style="font-size:20px;font-weight:800;min-height:34px;margin:10px 0 0"></p>
 </main>
 <script>
 var $=function(s){return document.querySelector(s)},R=function(n){return Math.floor(Math.random()*n)};
 function shuffle(a){return a.sort(function(){return Math.random()-.5})}
 function chips(box,items,cur,set){box.innerHTML='';items.forEach(function(it){var b=document.createElement('button');b.className='chip';b.textContent=it.l;b.setAttribute('aria-pressed',it.v===cur()?'true':'false');b.onclick=function(){set(it.v);chips(box,items,cur,set)};box.appendChild(b)})}
-var LV=[
-{r:['.....','.....','S...G','.....','.....'],d:1,lim:99,t:'Breng de robot naar de vlag 🏁. Tip: met Herhaal hoef je niet elke stap apart te plaatsen.'},
-{r:['....G','.....','.....','.....','S....'],d:1,lim:5,t:'Je mag maar 5 blokken gebruiken. Herhaal helpt!'},
-{r:['####G','###..','##..#','#..##','S.###'],d:1,lim:5,t:'Een trap! Welk stukje komt steeds terug? Maximaal 5 blokken.'},
-{r:['S.####','#..###','##..##','###..#','####..','#####G'],d:1,lim:5,t:'Weer een trap, nu naar beneden. Maximaal 5 blokken.'},
-{r:['......','......','S.##.G','......','......','......'],d:1,lim:99,t:'Loop om de muur heen.'},
-{r:['S.#....','.##.##.','...#...','.#...#.','.#.###.','.#...#.','...#..G'],d:2,lim:99,t:'Een doolhof! De robot kijkt nu naar beneden. Het kan met minder blokken als je Herhaal slim gebruikt.'}];
-var DX=[0,1,0,-1],DY=[-1,0,1,0],AR=['▲','▶','▼','◀'],NAME={F:'⬆️ Vooruit',L:'↰ Links',R:'↱ Rechts'};
-var lv=0,g,gw,gh,st,goal,prog=[],into=-1,busy=false,tm,best=0;
+var LV=[{"r": [".....", ".....", "S...G", ".....", "....."], "d": 1, "lim": 99, "pal": ["F", "L", "R", "rep"], "t": "Breng de robot naar de vlag 🏁. Tip: met Herhaal hoef je niet elke stap apart te plaatsen."}, {"r": ["....G", ".....", ".....", ".....", "S...."], "d": 1, "lim": 5, "pal": ["F", "L", "R", "rep"], "t": "Je mag maar 5 blokken gebruiken. Herhaal helpt!"}, {"r": ["####G", "###..", "##..#", "#..##", "S.###"], "d": 1, "lim": 5, "pal": ["F", "L", "R", "rep"], "t": "Een trap! Welk stukje komt steeds terug? Maximaal 5 blokken."}, {"r": ["S.####", "#..###", "##..##", "###..#", "####..", "#####G"], "d": 1, "lim": 5, "pal": ["F", "L", "R", "rep"], "t": "Weer een trap, nu naar beneden. Maximaal 5 blokken."}, {"r": ["......", "......", "S.##.G", "......", "......", "......"], "d": 1, "lim": 99, "pal": ["F", "L", "R", "rep"], "t": "Loop om de muur heen."}, {"r": ["S.#....", ".##.##.", "...#...", ".#...#.", ".#.###.", ".#...#.", "...#..G"], "d": 2, "lim": 99, "pal": ["F", "L", "R", "rep"], "t": "Een doolhof! De robot kijkt nu naar beneden. Het kan met minder blokken als je Herhaal slim gebruikt."}, {"r": ["######G", "######.", "####...", "####.##", "##...##", "##.####", "S..####"], "d": 1, "lim": 8, "pal": ["F", "L", "R", "rep"], "t": "Een Herhaal in een Herhaal! Tik op een herhaal-blok en dan nog een keer op Herhaal om er een in te zetten. Maximaal 8 blokken."}, {"r": [".......", ".#####.", ".#G..#.", ".###.#.", ".....#.", "######.", "S......"], "d": 1, "lim": 6, "pal": ["F", "L", "R", "rep", "while", "if"], "t": "Nieuw: 🔄 Herhaal tot de vlag en ❓ Als...anders. Tik op het woord in het Als-blok om de vraag te veranderen. Tip: is het voor je vrij, ga dan vooruit, anders draai je links. Maximaal 6 blokken."}, {"r": ["S....##", "####.##", "##...#G", "##.###.", "##....."], "d": 1, "lim": 7, "pal": ["F", "L", "R", "rep", "while", "if"], "t": "Nu zijn er bochten naar links en naar rechts. Zet een Als in het Anders-deel van een andere Als. Maximaal 7 blokken."}, {"r": ["S.....", "#####.", "......", ".#####", ".....G"], "d": 1, "lim": 99, "pal": [], "py": 1, "sol": "for i in range(2):\n    for j in range(5):\n        vooruit()\n    draai_rechts()\n    for j in range(2):\n        vooruit()\n    draai_rechts()\n    for j in range(5):\n        vooruit()\n    draai_links()\n    for j in range(2):\n        vooruit()\n    draai_links()\n", "code": "# Python! Typ hier je programma.\n# for i in range(3): herhaalt 3 keer.\n", "t": "Je programmeert nu in Python. Tip: een for in een for. Hulp nodig? Tik op 💡 Hint."}, {"r": ["S....#.", "####.#.", "...#.#.", ".#.#.#.", ".#...#.", ".#####.", "......G"], "d": 1, "lim": 99, "pal": [], "py": 1, "sol": "while not op_de_vlag():\n    if vrij_links():\n        draai_links()\n        vooruit()\n    elif vrij_voor_me():\n        vooruit()\n    else:\n        draai_rechts()\n", "code": "# Een doolhof. Hou de muur links van je vast.\n", "t": "Een doolhof in Python. Tip: loop steeds langs de muur links van je, tot je op de vlag staat."}, {"r": ["S#.......", ".###.####", "...#.....", "##.#.###.", ".#.#.#...", ".#.###.#.", ".#.....#.", ".#######.", "........G"], "d": 1, "lim": 99, "pal": [], "py": 1, "sol": "while not op_de_vlag():\n    if vrij_links():\n        draai_links()\n        vooruit()\n    elif vrij_voor_me():\n        vooruit()\n    else:\n        draai_rechts()\n", "code": "# Groter doolhof. Maak er eventueel een eigen functie van met def.\n", "t": "Een groter doolhof. Tip: geef een stukje code een eigen naam met def mijn_stap(): en roep het daarna aan."}];
+var DX=[0,1,0,-1],DY=[-1,0,1,0],AR=['▲','▶','▼','◀'],NAME={F:'⬆️ Vooruit',L:'↰ Links',R:'↱ Rechts'},PYN={F:'vooruit',L:'draai_links',R:'draai_rechts'};
+var CK=['muur','vrij','links','rechts'],CL={muur:'muur voor me',vrij:'vrij voor me',links:'vrij links',rechts:'vrij rechts'};
+var CPY={muur:'muur_voor_me()',vrij:'vrij_voor_me()',links:'vrij_links()',rechts:'vrij_rechts()',vlag:'op_de_vlag()',waar:'True'};
+/* ---------- uitvoeren ---------- */
+function Stop(msg){this.msg=msg}
+function free(c,d){var x=c.b.x+DX[d],y=c.b.y+DY[d];return x>=0&&y>=0&&x<c.w&&y<c.h&&c.g[y][x]!=='#'}
+function cond(c,q){var d=c.b.d,r=q.k==='muur'?!free(c,d):q.k==='vrij'?free(c,d):q.k==='links'?free(c,(d+3)%4):q.k==='rechts'?free(c,(d+1)%4):q.k==='vlag'?(c.b.x===c.goal.x&&c.b.y===c.goal.y):true;return q.neg?!r:r}
+function tick(c){if(++c.n>1500)throw new Stop('Dit duurt te lang. Zit je programma in een lus?')}
+function* exe(a,c){for(var i=0;i<a.length;i++)yield* one(a[i],c)}
+function* one(n,c){var b=c.b;
+if(n.t==='act'){tick(c);if(n.a==='L')b.d=(b.d+3)%4;else if(n.a==='R')b.d=(b.d+1)%4;else{if(!free(c,b.d))throw new Stop('Au! Daar kun je niet heen.');b.x+=DX[b.d];b.y+=DY[b.d]}yield 1}
+else if(n.t==='rep'){for(var k=0;k<n.n;k++){tick(c);yield* exe(n.b,c)}}
+else if(n.t==='while'){while(cond(c,n.c)){tick(c);yield* exe(n.b,c)}}
+else if(n.t==='if'){yield* exe(cond(c,n.c)?n.b:n.e,c)}
+else if(n.t==='def'){c.fn[n.name]=n.b}
+else if(n.t==='call'){var f=c.fn[n.name];if(!f)throw new Stop('Ik ken '+n.name+'() nog niet. Zet def '+n.name+'(): eerst in je code.');if(++c.dep>25)throw new Stop('Je functie roept zichzelf te vaak aan.');yield* exe(f,c);c.dep--}}
+/* ---------- Python lezen ---------- */
+function lev(a,b){var m=[],i,j;for(i=0;i<=a.length;i++){m[i]=[i];for(j=1;j<=b.length;j++)m[i][j]=i?Math.min(m[i-1][j]+1,m[i][j-1]+1,m[i-1][j-1]+(a[i-1]===b[j-1]?0:1)):j}return m[a.length][b.length]}
+function pyErr(n,m){return new Error('Regel '+n+': '+m)}
+function guess(w,names){var best=null,bd=9;names.forEach(function(x){var d=lev(w,x);if(d<bd){bd=d;best=x}});return bd<=3?' Bedoelde je '+best+'()?':''}
+var KC={muur_voor_me:'muur',vrij_voor_me:'vrij',vrij_links:'links',vrij_rechts:'rechts',op_de_vlag:'vlag'};
+function pyParse(src){var items=[],pos=0,defs=[];
+src.split('\n').forEach(function(l,i){var t=l.replace(/#.*/,'').replace(/\t/g,'    ');if(t.trim())items.push({n:i+1,ind:t.match(/^ */)[0].length,s:t.trim()})});
+function pc(s,n){var m=s.match(/^(not\s+)?(\w+)(\(\))?$/);if(!m)throw pyErr(n,'ik snap de voorwaarde "'+s+'" niet.');var w=m[2];
+if(w==='True')return{k:'waar',neg:!!m[1]};if(!KC[w]||!m[3])throw pyErr(n,'ik ken de voorwaarde "'+w+'" niet.'+guess(w,Object.keys(KC)));return{k:KC[w],neg:!!m[1]}}
+function body(it){if(pos>=items.length||items[pos].ind<=it.ind)throw pyErr(it.n,'na de dubbele punt moet een ingesprongen stuk code komen (4 spaties).');return block(items[pos].ind)}
+function block(ind){var out=[];while(pos<items.length&&items[pos].ind>=ind){var it=items[pos];if(it.ind>ind)throw pyErr(it.n,'let op de inspringing: deze regel staat te ver naar rechts.');pos++;out.push(stmt(it))}return out}
+function chain(it){var m=it.s.match(/^(?:if|elif)\s+(.+):$/);if(!m)throw pyErr(it.n,'ik snap deze regel niet.');var node={t:'if',c:pc(m[1].trim(),it.n),b:body(it),e:[]};
+if(pos<items.length&&items[pos].ind===it.ind){var nx=items[pos];if(/^elif\s/.test(nx.s)){pos++;node.e=[chain(nx)]}else if(nx.s==='else:'){pos++;node.e=body(nx)}}return node}
+function stmt(it){var s=it.s,m;
+if(m=s.match(/^(vooruit|draai_links|draai_rechts)\(\)$/))return{t:'act',a:m[1]==='vooruit'?'F':m[1]==='draai_links'?'L':'R'};
+if(m=s.match(/^for\s+\w+\s+in\s+range\(\s*(\d+)\s*\):$/))return{t:'rep',n:+m[1],b:body(it)};
+if(/^for\s/.test(s))throw pyErr(it.n,'gebruik zo: for i in range(3):');
+if(m=s.match(/^while\s+(.+):$/))return{t:'while',c:pc(m[1].trim(),it.n),b:body(it)};
+if(/^if\s/.test(s))return chain(it);
+if(/^(else|elif)\b/.test(s))throw pyErr(it.n,'"'+s.split(/[\s:]/)[0]+'" hoort bij een if erboven, op dezelfde plek in de regel.');
+if(m=s.match(/^def\s+(\w+)\(\):$/)){defs.push(m[1]);return{t:'def',name:m[1],b:body(it)}}
+if(s==='pass')return{t:'rep',n:0,b:[]};
+if(m=s.match(/^(\w+)\(\)$/)){if(defs.indexOf(m[1])<0)throw pyErr(it.n,'ik ken "'+m[1]+'()" niet.'+guess(m[1],['vooruit','draai_links','draai_rechts'].concat(defs)));return{t:'call',name:m[1]}}
+throw pyErr(it.n,'ik snap "'+s+'" niet. Gebruik vooruit(), draai_links() of draai_rechts().')}
+return block(items.length?items[0].ind:0)}
+/* ---------- blokken naar Python ---------- */
+function pc2(q){return (q.neg?'not ':'')+CPY[q.k]}
+function py(a,ind,vi){var s='',p=new Array(ind+1).join('    '),V=['i','j','k'];
+function bd(x){return x.length?py(x,ind+1,vi+1):p+'    pass\n'}
+a.forEach(function(n){if(n.t==='act')s+=p+PYN[n.a]+'()\n';else if(n.t==='rep')s+=p+'for '+V[vi%3]+' in range('+n.n+'):\n'+bd(n.b);else if(n.t==='while')s+=p+'while '+pc2(n.c)+':\n'+bd(n.b);else if(n.t==='if'){s+=p+'if '+pc2(n.c)+':\n'+bd(n.b);if(n.e.length)s+=p+'else:\n'+py(n.e,ind+1,vi+1)}});return s}
+/* ---------- scherm ---------- */
+var lv=0,g,gw,gh,st,goal,prog=[],act=null,busy=false,tm,best=0,tab='blk',spd=250,ta=$('#g-ta');
 try{best=+localStorage.getItem('robot-level')||0}catch(e){}
-function lvChips(){chips($('#g-lv'),LV.map(function(x,i){return{l:'Level '+(i+1),v:i}}),function(){return lv},function(v){load(v)})}
+function lvChips(){chips($('#g-lv'),LV.map(function(x,i){return{l:(x.py?'🐍 ':'')+(i+1),v:i}}),function(){return lv},function(v){load(v)})}
 function load(n){clearTimeout(tm);busy=false;lv=n;var L=LV[n];g=L.r.map(function(r){return r.split('')});gh=g.length;gw=g[0].length;
 for(var y=0;y<gh;y++)for(var x=0;x<gw;x++){if(g[y][x]==='S'){st={x:x,y:y,d:L.d};g[y][x]='.'}if(g[y][x]==='G'){goal={x:x,y:y};g[y][x]='.'}}
-prog=[];into=-1;$('#g-tip').textContent=L.t;$('#g-msg').textContent='';$('#g-next').hidden=true;$('#g-run').disabled=false;lvChips();draw(st);list()}
+prog=[];act=null;tab=L.py?'py':'blk';ta.value=L.code||'';$('#g-tip').textContent=L.t;$('#g-msg').textContent='';$('#g-next').hidden=true;$('#g-hb').hidden=true;$('#g-hint').hidden=!L.py;$('#g-conv').hidden=!!L.py;$('#g-tabs').hidden=!!L.py;
+document.querySelectorAll('#g-pal [data-c]').forEach(function(b){var c=b.dataset.c;b.hidden=c!=='del'&&c!=='clr'&&L.pal.indexOf(c)<0});
+lvChips();tabs();draw(st);list()}
+function tabs(){chips($('#g-tabs'),[{l:'🧩 Blokken',v:'blk'},{l:'🐍 Python',v:'py'}],function(){return tab},function(v){tab=v;if(v==='py'&&!ta.value.trim()&&prog.length)ta.value=py(prog,0,0);panes()});panes()}
+function panes(){$('#g-blk').hidden=tab!=='blk';$('#g-py').hidden=tab!=='py';lines()}
+function lines(){var n=ta.value.split('\n').filter(function(l){var t=l.replace(/#.*/,'').trim();return t}).length;$('#g-lines').textContent='Regels code: '+n}
 function draw(b,bad){var el=$('#g-grid');el.style.gridTemplateColumns='repeat('+gw+',1fr)';el.innerHTML='';
 for(var y=0;y<gh;y++)for(var x=0;x<gw;x++){var c=document.createElement('div');c.className='ce'+(g[y][x]==='#'?' w':'');
 if(x===goal.x&&y===goal.y)c.textContent='🏁';if(x===b.x&&y===b.y){c.className+=' bot'+(bad?' bad':'');c.innerHTML='🤖<small>'+AR[b.d]+'</small>'}el.appendChild(c)}}
-function cnt(){return prog.reduce(function(n,it){return n+1+(it.c==='rep'?it.b.length:0)},0)}
-function list(){var box=$('#g-prog');box.innerHTML='';if(!prog.length)box.innerHTML='<span style="opacity:.6">Zet hier je blokken neer.</span>';
-prog.forEach(function(it,i){if(it.c!=='rep'){var s=document.createElement('span');s.className='blk';s.textContent=NAME[it.c];box.appendChild(s);return}
-var r=document.createElement('div');r.className='rep'+(into===i?' act':'');r.onclick=function(){into=into===i?-1:i;list()};
-r.appendChild(document.createTextNode('🔁 '));var n=document.createElement('button');n.textContent=it.n+'×';n.setAttribute('aria-label','aantal keer');n.onclick=function(e){e.stopPropagation();it.n=it.n>=9?2:it.n+1;list()};r.appendChild(n);
-it.b.forEach(function(c){var s=document.createElement('span');s.className='blk';s.textContent=NAME[c];r.appendChild(s)});if(!it.b.length&&into===i)r.appendChild(document.createTextNode('…'));box.appendChild(r)});
-var L=LV[lv].lim;$('#g-cnt').textContent='Blokken: '+cnt()+(L<99?' van '+L:'')}
-document.querySelector('.pal').onclick=function(e){var b=e.target.closest('button');if(!b||busy)return;var c=b.dataset.c;
-if(c==='clr'){prog=[];into=-1}
-else if(c==='del'){if(into>=0){if(prog[into].b.length)prog[into].b.pop();else{prog.splice(into,1);into=-1}}else prog.pop()}
-else if(c==='rep'){prog.push({c:'rep',n:2,b:[]});into=prog.length-1}
-else if(into>=0)prog[into].b.push(c);else prog.push({c:c});list()};
-function run(){if(busy)return;if(!prog.length){$('#g-msg').textContent='Bouw eerst een programma.';return}if(cnt()>LV[lv].lim){$('#g-msg').textContent='Te veel blokken! Gebruik Herhaal.';return}
-var out=[];prog.forEach(function(it){if(it.c==='rep'){for(var k=0;k<it.n;k++)out=out.concat(it.b)}else out.push(it.c)});
-var b={x:st.x,y:st.y,d:st.d},k=0;busy=true;$('#g-msg').textContent='';$('#g-next').hidden=true;draw(b);
-function fail(m){$('#g-msg').textContent=m;draw(b,true);tm=setTimeout(function(){busy=false;draw(st)},1600)}
-function step(){if(k>=out.length){if(b.x===goal.x&&b.y===goal.y)return win();return fail('Net niet! De robot staat nog niet op de vlag.')}
-var c=out[k++];if(c==='L')b.d=(b.d+3)%4;else if(c==='R')b.d=(b.d+1)%4;else{var nx=b.x+DX[b.d],ny=b.y+DY[b.d];if(nx<0||ny<0||nx>=gw||ny>=gh||g[ny][nx]==='#')return fail('Au! Daar kun je niet heen.');b.x=nx;b.y=ny}
-draw(b);if(b.x===goal.x&&b.y===goal.y)return win();tm=setTimeout(step,320)}
-function win(){busy=false;$('#g-msg').textContent='🎉 Gelukt met '+cnt()+' blokken!';if(lv<LV.length-1)$('#g-next').hidden=false;else $('#g-msg').textContent+=' Je hebt alle levels gehaald!';try{if(lv+1>best)localStorage.setItem('robot-level',lv+1)}catch(e){}}
-tm=setTimeout(step,300)}
+function cnt(a){return a.reduce(function(n,x){return n+1+(x.b?cnt(x.b):0)+(x.e?cnt(x.e):0)},0)}
+function mk(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt)e.textContent=txt;return e}
+function nodes(a,par){a.forEach(function(n){
+if(n.t==='act'){par.appendChild(mk('span','blk',NAME[n.a]));return}
+var r=mk('div','rep'+(act===n.b?' act':''));
+if(n.t==='rep'){r.appendChild(document.createTextNode('🔁 '));var nb=mk('button','',n.n+'×');nb.setAttribute('aria-label','aantal keer');nb.onclick=function(e){e.stopPropagation();n.n=n.n>=9?2:n.n+1;list()};r.appendChild(nb);r.onclick=function(e){e.stopPropagation();act=act===n.b?null:n.b;list()};nodes(n.b,r)}
+else if(n.t==='while'){r.appendChild(mk('b','','🔄 Tot de vlag:'));r.onclick=function(e){e.stopPropagation();act=act===n.b?null:n.b;list()};nodes(n.b,r)}
+else{r.className='rep';r.style.cursor='default';r.appendChild(document.createTextNode('❓ Als '));var cb=mk('button','',CL[n.c.k]);cb.setAttribute('aria-label','voorwaarde veranderen');cb.onclick=function(e){e.stopPropagation();n.c.k=CK[(CK.indexOf(n.c.k)+1)%4];list()};r.appendChild(cb);r.appendChild(document.createTextNode(':'));
+var s1=mk('div','sub'+(act===n.b?' act':''));s1.onclick=function(e){e.stopPropagation();act=act===n.b?null:n.b;list()};nodes(n.b,s1);r.appendChild(s1);r.appendChild(mk('b','','anders:'));
+var s2=mk('div','sub'+(act===n.e?' act':''));s2.onclick=function(e){e.stopPropagation();act=act===n.e?null:n.e;list()};nodes(n.e,s2);r.appendChild(s2)}
+par.appendChild(r)})}
+function list(){var box=$('#g-prog');box.innerHTML='';box.className='prog'+(act===null?' act':'');if(!prog.length)box.appendChild(mk('span','','Zet hier je blokken neer.')).style.opacity=.6;nodes(prog,box);
+var L=LV[lv].lim;$('#g-cnt').textContent='Blokken: '+cnt(prog)+(L<99?' van '+L:'');$('#g-code').textContent=prog.length?py(prog,0,0):'# Hier verschijnt je programma als Python-code.'}
+$('#g-prog').onclick=function(e){if(e.target===this){act=null;list()}};
+function owner(a,t){for(var i=0;i<a.length;i++){var n=a[i];if(n.b===t||n.e===t)return{a:a,i:i};var r=(n.b&&owner(n.b,t))||(n.e&&owner(n.e,t));if(r)return r}return null}
+$('#g-pal').onclick=function(e){var b=e.target.closest('button');if(!b||busy)return;var c=b.dataset.c,t=act||prog,nn;
+if(c==='clr'){prog=[];act=null}
+else if(c==='del'){if(t.length)t.pop();else if(act){var o=owner(prog,act);if(o){o.a.splice(o.i,1);act=o.a===prog?null:o.a}}}
+else if(c==='F'||c==='L'||c==='R')t.push({t:'act',a:c});
+else if(c==='rep'){nn={t:'rep',n:2,b:[]};t.push(nn);act=nn.b}
+else if(c==='while'){nn={t:'while',c:{k:'vlag',neg:true},b:[]};t.push(nn);act=nn.b}
+else if(c==='if'){nn={t:'if',c:{k:'vrij',neg:false},b:[],e:[]};t.push(nn);act=nn.b}
+list()};
+/* Python-editor */
+var SN=[['vooruit()','vooruit()\n'],['draai_links()','draai_links()\n'],['draai_rechts()','draai_rechts()\n'],['for','for i in range(3):\n    '],['while','while not op_de_vlag():\n    '],['if','if vrij_voor_me():\n    '],['else','else:\n    '],['def','def mijn_stap():\n    ']];
+var sb=$('#g-snip');SN.forEach(function(s){var b=mk('button','chip',s[0]);b.onclick=function(){var p=ta.selectionStart;ta.value=ta.value.slice(0,p)+s[1]+ta.value.slice(ta.selectionEnd);ta.focus();ta.selectionStart=ta.selectionEnd=p+s[1].length;lines()};sb.appendChild(b)});
+ta.addEventListener('input',lines);
+ta.addEventListener('keydown',function(e){if(e.key==='Tab'){e.preventDefault();var p=ta.selectionStart;ta.value=ta.value.slice(0,p)+'    '+ta.value.slice(ta.selectionEnd);ta.selectionStart=ta.selectionEnd=p+4;lines()}});
+$('#g-conv').onclick=function(){if(!prog.length){$('#g-msg').textContent='Bouw eerst blokken.';return}ta.value=py(prog,0,0);lines()};
+$('#g-hint').onclick=function(){var h=$('#g-hb');h.hidden=!h.hidden;h.textContent='Een mogelijke oplossing:\n\n'+LV[lv].sol};
+chips($('#g-spd'),[{l:'🐢',v:450},{l:'🚶',v:250},{l:'🐇',v:80}],function(){return spd},function(v){spd=v});
+/* start */
+function run(){if(busy)return;var ast,L=LV[lv],m=$('#g-msg');m.textContent='';
+if(tab==='py'){if(!ta.value.trim()){m.textContent='Typ eerst je programma.';return}try{ast=pyParse(ta.value)}catch(e){m.textContent=e.message;return}}
+else{ast=prog;if(!ast.length){m.textContent='Bouw eerst een programma.';return}if(cnt(prog)>L.lim){m.textContent='Te veel blokken! Gebruik Herhaal.';return}}
+var c={g:g,w:gw,h:gh,goal:goal,b:{x:st.x,y:st.y,d:st.d},n:0,fn:{},dep:0},it=exe(ast,c);busy=true;$('#g-next').hidden=true;draw(c.b);
+function fail(t){m.textContent=t;draw(c.b,true);tm=setTimeout(function(){busy=false;draw(st)},1600)}
+function step(){var r;try{r=it.next()}catch(e){if(e instanceof Stop)return fail(e.msg);busy=false;m.textContent='Er ging iets mis: '+e.message;return}
+if(r.done)return c.b.x===goal.x&&c.b.y===goal.y?win():fail('Net niet! De robot staat nog niet op de vlag.');
+draw(c.b);if(c.b.x===goal.x&&c.b.y===goal.y)return win();tm=setTimeout(step,spd)}
+function win(){busy=false;draw(c.b);m.textContent='🎉 Gelukt met '+(tab==='py'?ta.value.split('\n').filter(function(l){return l.replace(/#.*/,'').trim()}).length+' regels code!':cnt(prog)+' blokken!');
+if(lv<LV.length-1)$('#g-next').hidden=false;else m.textContent+=' Je hebt alle levels gehaald!';try{if(lv+1>best){best=lv+1;localStorage.setItem('robot-level',best)}}catch(e){}}
+tm=setTimeout(step,250)}
 $('#g-run').onclick=run;$('#g-next').onclick=function(){load(lv+1)};
 load(Math.min(best,LV.length-1));
 </script>
